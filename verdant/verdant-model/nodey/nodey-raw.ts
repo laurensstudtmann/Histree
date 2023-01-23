@@ -41,7 +41,6 @@ export namespace NodeyRawCell {
       parent: dat.parent,
       created: dat.start_checkpoint,
       literal: dat.literal,
-      jnId: dat.jnId,
     });
   }
 }

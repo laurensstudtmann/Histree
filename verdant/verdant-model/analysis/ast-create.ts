@@ -71,14 +71,13 @@ export class ASTCreate {
       // First, create code cell from text
       let text: string = cell.editor.model.value.text;
       if (text.length > 0)
-        nodey = await this.generateCodeNodey(text, checkpoint.id, cell.model.id);
+        nodey = await this.generateCodeNodey(text, checkpoint.id);
       else {
         nodey = this.createCodeCell({
           start: { line: 1, ch: 0 },
           end: { line: 1, ch: 0 },
           type: "Module",
           created: checkpoint.id,
-          jnId: cell.model.id,
         });
       }
       // Next, create output if there is output
@@ -96,23 +95,21 @@ export class ASTCreate {
     } else if (cell instanceof MarkdownCell) {
       // create markdown cell from text
       let text = cell.model.value.text;
-      nodey = this.createMarkdown({ markdown: text, created: checkpoint.id, jnId: cell.model.id });
+      nodey = this.createMarkdown({ markdown: text, created: checkpoint.id });
     } else if (cell instanceof RawCell) {
       // create raw cell from text
       let text: string = cell.editor.model.value.text;
-      nodey = this.createRawCell({ literal: text, created: checkpoint.id, jnId: cell.model.id });
+      nodey = this.createRawCell({ literal: text, created: checkpoint.id });
     }
     return nodey;
   }
 
   public async generateCodeNodey(
     code: string,
-    checkpoint: number,
-    jnId: string,
+    checkpoint: number
   ): Promise<NodeyCode> {
     let dict = await ASTUtils.parseRequest(code);
     dict["created"] = checkpoint;
-    dict["jnId"] = jnId;
     let nodey = this.createCodeCell(dict);
     return nodey;
   }
