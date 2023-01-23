@@ -85,6 +85,7 @@ export namespace GhostToNotebookConverter {
         }
 
         if (val) {
+          cell.jnId = val.id;
           model.cells.insert(index, val);
         }
       })

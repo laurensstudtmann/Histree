@@ -283,6 +283,7 @@ export class Commit {
         created: this.checkpoint.id,
         markdown: instructions.markdown,
         parent: this.notebook.name,
+        jnId: oldNodey.jnId,
       });
       nodeyHistory.addVersion(newNodey);
 
@@ -316,6 +317,7 @@ export class Commit {
         created: this.checkpoint.id,
         literal: instructions.literal,
         parent: this.notebook.name,
+        jnId: oldNodey.jnId,
       });
       nodeyHistory?.addVersion(newNodey);
 
@@ -364,6 +366,7 @@ export class Commit {
         created: this.checkpoint.id,
         literal: instructions["literal"],
         parent: this.notebook.name,
+        jnId: oldNodey.jnId,
       });
       nodeyHistory.addVersion(newNodey);
     } else newNodey = oldNodey;

@@ -98,7 +98,7 @@ export class VerNotebook {
 
   public getCell(cell: ICellModel): VerCell | undefined {
     return this.cells.find((item) => {
-      if (item.view && item.view.model) return item.view.model.id === cell.id;
+      if (item.model) return item.model.jnId === cell.id;
     });
   }
 
