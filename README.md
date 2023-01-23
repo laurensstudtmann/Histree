@@ -1,3 +1,8 @@
+# VerTree
+
+This is a fork of Verdant, a history tracking tool for Jupyter Notebooks.
+The purpose of VerTree is to provide a JupyterLab extension that does tree-based history tracking with branching capabilities. The original README of Verdant is provided below.
+
 # Verdant
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
