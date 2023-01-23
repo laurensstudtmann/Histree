@@ -103,6 +103,9 @@ export class NotebookListen {
         // to avoid duplicates during load wait til load is complete
         if (!this.verNotebook.ready) return;
 
+        // See if listening events are disabled (happens when different notebook checkpoint is loaded up)
+        if (!this.verNotebook.canListen) return;
+
         var newIndex = data.newIndex;
         var newValues = data.newValues;
         var oldIndex = data.oldIndex;

@@ -57,6 +57,7 @@ export class OutputHistory extends NodeHistory<NodeyOutput> {
       // now check that every output matches in a and b
       return await asyncEvery(outList_a, async (a, index) => {
         let b = outList_b[index];
+        console.log(a);
 
         // Important! ignore the execution count, only compare
         // the data (or text) field of the output
@@ -92,7 +93,9 @@ export class OutputHistory extends NodeHistory<NodeyOutput> {
 
         // finally stringify data to compare it
         const str_a = JSON.stringify(raw_a);
-        const str_b = JSON.stringify(raw_b);
+        const str_b = JSON.stringify(raw_b)
+        console.log("str_a: " + str_a);
+        console.log("str_b: " + str_b);
 
         return str_a === str_b;
       });

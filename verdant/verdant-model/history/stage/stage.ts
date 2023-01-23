@@ -121,13 +121,15 @@ export class Stage {
     if (!onlyErrors) {
       // compare to see if output has changed
       let same = await OutputHistory.isSame(oldOutput, raw, this.fileManager);
-
-      if (!same) {
+      console.log(oldOutput);
+      if (!same) {//((!same || same)) { //&& (raw.length > 0 || oldOutput != null)) {
         // make instructions for a new Output in staging
         if (!this.staged_codeCell[nodey.artifactName]) {
           this.staged_codeCell[nodey.artifactName] = {};
           this.staged_total.push(nodey);
         }
+        //if (raw.length === 0)
+        //  raw = [{ name: "stdout", output_type: "stream", text: "This is a workaround, there should not be any output here." }];
         this.staged_codeCell[nodey.artifactName]["output"] = raw;
       }
     }

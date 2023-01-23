@@ -3,6 +3,7 @@ import ArtifactDetails from "./details";
 import ArtifactSummary from "./summary";
 import EventMap from "./events";
 import Search from "./search";
+import TreeTab from "./history-tree";
 import { ActiveTab, switchTab, verdantState } from "../redux";
 import { SearchIcon } from "../icons";
 import { connect } from "react-redux";
@@ -31,6 +32,12 @@ class PanelContainer extends React.Component<Panel_Props> {
     let active = this.props.activeTab;
     return (
       <div className={TAB_CONTAINER}>
+        <div
+          className={`${TAB} ${active === ActiveTab.TreeTab ? "active" : ""}`}
+          onClick={() => this.props.setActiveTab(ActiveTab.TreeTab)}
+        >
+          History Tree
+        </div>
         <div
           className={`${TAB} ${active === ActiveTab.Events ? "active" : ""}`}
           onClick={() => this.props.setActiveTab(ActiveTab.Events)}
@@ -67,6 +74,7 @@ class PanelContainer extends React.Component<Panel_Props> {
 
   showTab() {
     let active = this.props.activeTab;
+    if (active === ActiveTab.TreeTab) return <TreeTab />;
     if (active === ActiveTab.Events) return <EventMap />;
     if (active === ActiveTab.Artifacts) return <ArtifactSummary />;
     if (active === ActiveTab.Artifact_Details) return <ArtifactDetails />;

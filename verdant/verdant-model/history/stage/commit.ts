@@ -421,7 +421,7 @@ export class Commit {
 // helper functions
 function checkTimeDiff(A: Checkpoint, B: Checkpoint): boolean {
   let minutes_elapsed = Math.abs(A.timestamp - B.timestamp) / 1000 / 60;
-  return minutes_elapsed < 6;
+  return minutes_elapsed < 0;
 }
 
 function checkArtfiactOverlap(targets_A, targets_B): boolean {

@@ -83,6 +83,7 @@ export const eventReducer = (
   action: any
 ): eventMapState => {
   const eventView = state.eventView;
+  console.log(action.type);
   switch (action.type) {
     case INIT_EVENT_MAP:
       if (eventView.dates.length < 2)

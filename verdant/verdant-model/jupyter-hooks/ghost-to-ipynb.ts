@@ -1,4 +1,4 @@
-import { NotebookModel } from "@jupyterlab/notebook";
+import { INotebookModel, NotebookModel } from "@jupyterlab/notebook";
 import { History, OutputHistory } from "../history";
 import {
   NodeyCodeCell,
@@ -10,7 +10,7 @@ import * as nbformat from "@jupyterlab/nbformat";
 import { CodeCellModel, ICellModel } from "@jupyterlab/cells";
 
 export namespace GhostToNotebookConverter {
-  export async function convert(history: History, notebook: NodeyNotebook) {
+  export async function convert(history: History, notebook: NodeyNotebook, createNewModel: Boolean = true) {
     const ver_notebook = history.notebook;
 
     // first match language of notebook
@@ -19,18 +19,37 @@ export namespace GhostToNotebookConverter {
     let lang = metadata?.get("language_info") as nbformat.ILanguageInfoMetadata;
     if (lang) options["languagePreference"] = lang.name;
 
-    let model = new NotebookModel(options);
+    let model: INotebookModel;
+    if (createNewModel) {
+      // For generating a notebook from a ghostbook
+      model = new NotebookModel(options);
+    }
+    else {
+      // For applying the notebook to the current working notebook
+      model = ver_notebook.view.notebook.model;
+
+      // Disable listening events so all the changed cells do not create any checkpoints
+      ver_notebook.canListen = false;
+
+      // Remove all current cells
+      model.cells.clear();
+    }
 
     // now create cells
     await Promise.all(
       notebook?.cells?.map(async (name, index) => {
         let cell = history.store.get(name);
+        //let icellmodel = ver_notebook.getCellByNode(cell).view.model
         let val: ICellModel;
+        //if (!createNewModel && icellmodel != null) {
+        //  val = icellmodel;
+        //}
 
         // create a CellModel with the Nodey's text
         if (cell instanceof NodeyCodeCell) {
           val = model.contentFactory.createCodeCell({});
           val.value.text = cell.literal || "";
+          //history.store.currentNotebook.cells
 
           // create outputs if needed
           let output = history.store.getOutput(cell);
@@ -65,10 +84,12 @@ export namespace GhostToNotebookConverter {
           val.value.text = cell.literal || "";
         }
 
-        if (val) model.cells.insert(index, val);
+        if (val) {
+          model.cells.insert(index, val);
+        }
       })
     );
-
+    ver_notebook.canListen = true;  // Enable events again
     return model;
   }
 }

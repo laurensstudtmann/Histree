@@ -49,7 +49,7 @@ function VerdantLanding() {
   return (
     <div id="verdant-landing">
       <div id="verdant-landing-message">
-        <div>Open up a notebook to see its history.</div>
+        <div>(Custom Verdant) Open up a notebook to see its history.</div>
         <div id="verdant-landing-img" />
       </div>
     </div>

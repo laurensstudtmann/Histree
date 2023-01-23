@@ -9,7 +9,7 @@ import { VerCell } from "./cell";
 import { NodeyNotebook, NodeyCell } from "./nodey";
 import { NotebookEvent, LoadNotebook } from "./notebook-events";
 
-const DEBUG = false;
+const DEBUG = true;
 
 /*
  * Notebook holds a list of cells
@@ -21,12 +21,17 @@ export class VerNotebook {
   private eventQueue: Promise<any>[] = [];
   cells: VerCell[];
 
+  // Whether to listen to events from this notebook or not (for "locking" the notebook for notebook-listen)
+  canListen: Boolean;
+
   constructor(history: History, ast: AST, notebookPanel: NotebookPanel) {
+    this.canListen = true;
     this.history = history;
     this.ast = ast;
     this.view = new NotebookListen(notebookPanel, this);
     this.cells = [];
     this.init();
+
   }
 
   public get ready(): Promise<void> {

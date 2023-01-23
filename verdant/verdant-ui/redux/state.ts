@@ -57,6 +57,7 @@ export const showEvent = (event: Checkpoint) => {
 };
 
 export enum ActiveTab {
+  TreeTab,
   Events,
   Artifacts,
   Artifact_Details,
@@ -87,6 +88,7 @@ export const createInitialState = (getHistory: () => History): verdantState => {
 };
 
 export const verdantReducer = (state: verdantState, action: any) => {
+  console.log(action.type);
   switch (action.type) {
     case SET_GHOST_OPENER:
       return { ...state, openGhostBook: action.fun };
