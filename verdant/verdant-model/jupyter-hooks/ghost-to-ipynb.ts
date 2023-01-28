@@ -39,17 +39,12 @@ export namespace GhostToNotebookConverter {
     await Promise.all(
       notebook?.cells?.map(async (name, index) => {
         let cell = history.store.get(name);
-        //let icellmodel = ver_notebook.getCellByNode(cell).view.model
         let val: ICellModel;
-        //if (!createNewModel && icellmodel != null) {
-        //  val = icellmodel;
-        //}
 
         // create a CellModel with the Nodey's text
         if (cell instanceof NodeyCodeCell) {
           val = model.contentFactory.createCodeCell({});
           val.value.text = cell.literal || "";
-          //history.store.currentNotebook.cells
 
           // create outputs if needed
           let output = history.store.getOutput(cell);
@@ -75,7 +70,6 @@ export namespace GhostToNotebookConverter {
               }
             });
           }
-          //(val as ICodeCellModel).outputs.contentFactory.createOutputModel({})
         } else if (cell instanceof NodeyMarkdown) {
           val = model.contentFactory.createMarkdownCell({});
           val.value.text = cell.markdown || "";
@@ -86,6 +80,8 @@ export namespace GhostToNotebookConverter {
 
         if (val) {
           model.cells.insert(index, val);
+          let verCell = ver_notebook.getCellByNode(cell)
+          if (verCell != null) verCell.view = ver_notebook.view.notebook.widgets[index];
         }
       })
     );
