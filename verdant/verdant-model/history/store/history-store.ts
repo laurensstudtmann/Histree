@@ -26,6 +26,9 @@ export class HistoryStore {
   readonly fileManager: FileManager;
   readonly history: History;
 
+  // Index of the notebook version that is currently selected and shown
+  public currentNotebookIndex: number;
+
   private _notebookHistory: NodeHistory<NodeyNotebook>;
   private _codeCellStore: CodeHistory[] = [];
   private _markdownStore: NodeHistory<NodeyMarkdown>[] = [];
@@ -39,7 +42,8 @@ export class HistoryStore {
   }
 
   get currentNotebook(): NodeyNotebook | undefined {
-    return this._notebookHistory?.latest;
+    //return this._notebookHistory?.latest;
+    return this._notebookHistory.getVersion(this.currentNotebookIndex);
   }
 
   public getNotebook(ver?: number): NodeyNotebook | undefined {
@@ -167,8 +171,10 @@ export class HistoryStore {
       let id = 0;
       nodey.id = id;
       // if this is the first version
-      if (!this._notebookHistory)
+      if (!this._notebookHistory) {
         this._notebookHistory = new NodeHistory<NodeyNotebook>();
+        this.currentNotebookIndex = 0;  // List of notebook versions is empty at this point, but will be filled with the first element in the next line, so set index to that first element already
+      }
       this._notebookHistory.addVersion(nodey);
     } else {
       let store = this._getStoreFor(nodey);

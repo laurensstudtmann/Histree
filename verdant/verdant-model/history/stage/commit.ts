@@ -267,6 +267,7 @@ export class Commit {
     notebookHist?.addVersion(newNotebook);
     this.notebook = newNotebook;
     this.checkpoint.notebook = this.notebook?.version;
+    this.history.store.currentNotebookIndex = this.notebook?.version;
   }
 
   private createMarkdownVersion(

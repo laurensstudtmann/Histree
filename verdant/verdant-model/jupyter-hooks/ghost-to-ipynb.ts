@@ -82,6 +82,9 @@ export namespace GhostToNotebookConverter {
           model.cells.insert(index, val);
           let verCell = ver_notebook.getCellByNode(cell)
           if (verCell != null) verCell.view = ver_notebook.view.notebook.widgets[index];
+          
+          // Set current notebook index to the index of the checkpoint we clicked on:
+          history.store.currentNotebookIndex = notebook.version;
         }
       })
     );
