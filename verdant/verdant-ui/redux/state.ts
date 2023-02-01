@@ -58,6 +58,7 @@ export const showEvent = (event: Checkpoint) => {
 
 export enum ActiveTab {
   TreeTab,
+  TreeTabOld,
   Events,
   Artifacts,
   Artifact_Details,
