@@ -6,6 +6,7 @@ import { Checkpoint } from "verdant/verdant-model/checkpoint";
 import Tree from 'react-d3-tree';
 import { RawNodeDatum, TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/ghost-to-ipynb";
+import { log } from "../../../verdant-model/notebook";
 
 //const PANEL = "v-VerdantPanel-content";
 
@@ -43,13 +44,6 @@ import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/g
 };
 */
 
-let css = `
-    .node__all > circle {
-      fill: #bbb;
-      stroke-width: 1px;
-    }
-    `;
-
 const makeTreeData = (checkpoints: Checkpoint[]) => {
   let res = { name: "root", children: [] };
   return buildTreeRecursive(checkpoints, 0, res);
@@ -66,19 +60,31 @@ const buildTreeRecursive = (checkpoints: Checkpoint[], index: number, currentNod
 const handleNodeClick = (node: any, history: History) => {
   let nodeDatum: TreeNodeDatum = node.data;
   if (nodeDatum.attributes == null || nodeDatum.attributes.notebook == null) return; // Do not do anything when root node is clicked
-  GhostToNotebookConverter.convert(history, history.store.getNotebook(nodeDatum.attributes.notebook as number), false);
+  GhostToNotebookConverter.convert(history, history.store.getNotebook(nodeDatum.attributes.notebook as number), false, nodeDatum);
 }
+
+let css = `
+    .node__all > circle {
+      fill: #bbb;
+      stroke-width: 1px;
+    }
+
+    .full-height {
+      height: 100%
+    }
+    `;
 
 type TreeTab_Props = {
   checkpoints: Checkpoint[];
   history: History
   numberOfCheckpoints: number
   treeData: RawNodeDatum
+  treeDataLinear: RawNodeDatum
 }
 class TreeTab extends React.Component<TreeTab_Props> {
   render() {
     return (
-      <div>
+      <div className="full-height">
         <style>{css}</style>
         <Tree data={this.props.treeData}
           rootNodeClassName="node__all"
@@ -96,11 +102,16 @@ class TreeTab extends React.Component<TreeTab_Props> {
 }
 
 const mapStateToProps = (state: verdantState) => {
-  let checkpoints = state.getHistory().checkpoints.all();
   let history = state.getHistory();
+  let checkpoints = history.checkpoints.all();
   let numberOfCheckpoints = checkpoints.length; // Workaround to get React to rerender the component when a checkpoint is added
-  let treeData = makeTreeData(checkpoints);
-  return { checkpoints, history, numberOfCheckpoints, treeData };
+
+  // Do a shallow copy of the history tree data structure to force a rerender (react-d3-tree does not update otherwise)
+  let treeData = Object.assign({ attributes: { numberOfCheckpoints } }, history.store.historyTree);
+
+  let treeDataLinear = makeTreeData(checkpoints);   // Linear version of the tree for comparison (debugging purposes)
+  log(treeData);
+  return { checkpoints, history, numberOfCheckpoints, treeData, treeDataLinear };
 };
 
 export default connect(mapStateToProps, null)(TreeTab)

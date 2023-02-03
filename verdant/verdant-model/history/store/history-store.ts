@@ -15,6 +15,8 @@ import { FileManager } from "../../jupyter-hooks/file-manager";
 
 import { History, NodeHistory, OutputHistory, CodeHistory } from "..";
 import { Search } from "./search";
+import { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
+import { Checkpoint } from "verdant/verdant-model/checkpoint";
 
 export type searchResult = {
   label: string;
@@ -26,8 +28,9 @@ export class HistoryStore {
   readonly fileManager: FileManager;
   readonly history: History;
 
-  // Index of the notebook version that is currently selected and shown
-  public currentNotebookIndex: number;
+  private _historyTree: RawNodeDatum = { name: "root", children: [] };  // root node of the history tree (including all the children)
+  public currentNotebookIndex: number;                                  // Index of the notebook version that is currently selected and shown
+  public currentNode: RawNodeDatum = this._historyTree;                 // Node we are currently at in the tree
 
   private _notebookHistory: NodeHistory<NodeyNotebook>;
   private _codeCellStore: CodeHistory[] = [];
@@ -36,11 +39,14 @@ export class HistoryStore {
   private _outputStore: OutputHistory[] = [];
   private _snippetStore: NodeHistory<NodeyCode>[] = [];
 
+
   constructor(history: History, fileManager: FileManager) {
     this.history = history;
     this.fileManager = fileManager;
   }
-
+  get historyTree(): RawNodeDatum {
+    return this._historyTree;
+  }
   get currentNotebook(): NodeyNotebook | undefined {
     //return this._notebookHistory?.latest;
     return this._notebookHistory.getVersion(this.currentNotebookIndex);
@@ -164,6 +170,33 @@ export class HistoryStore {
     let cellHistory = this.getHistoryOf(cell) as CodeHistory;
     let outNames = cellHistory?.allOutput;
     return outNames?.map((name) => this.getHistoryOf(name) as OutputHistory);
+  }
+
+  public appendNodeToTree(checkpoint: Checkpoint, changeType: string) {
+    let nextNode = { 
+      name: checkpoint.notebook.toString() + " " + changeType,
+      attributes: { notebook: checkpoint.notebook, changeType },
+      children: []
+    };
+    this.currentNode.children.push(nextNode);
+    this.currentNode = nextNode;
+  }
+
+  public setCurrentNodeDatum(node: RawNodeDatum) {
+    // Need to perform search through the history tree to get the proper reference to this node
+    let resNode = this.tree_DFS(this._historyTree, node);
+    if (resNode != null) this.currentNode = resNode;
+  }
+
+  private tree_DFS(subtree: RawNodeDatum, node: RawNodeDatum) {
+    if (node.attributes.notebook === subtree.attributes?.notebook) return subtree;
+    let res;
+    let i = 0;
+    while (res == null && i < subtree.children.length) {
+      res = this.tree_DFS(subtree.children[i], node);
+      i++;
+    }
+    return res;
   }
 
   public store(nodey: Nodey): void {

@@ -16,5 +16,6 @@ export class DeleteCell extends NotebookEvent {
         oldCell.model,
         this.checkpoint
       );
+      this.history.store.appendNodeToTree(this.checkpoint, "delete");
   }
 }

@@ -30,5 +30,6 @@ export class MoveCell extends NotebookEvent {
         this.newPos,
         this.checkpoint
       );
+      this.history.store.appendNodeToTree(this.checkpoint, "move");
   }
 }

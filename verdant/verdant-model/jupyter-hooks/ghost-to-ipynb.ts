@@ -8,9 +8,10 @@ import {
 } from "../nodey";
 import * as nbformat from "@jupyterlab/nbformat";
 import { CodeCellModel, ICellModel } from "@jupyterlab/cells";
+import { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
 
 export namespace GhostToNotebookConverter {
-  export async function convert(history: History, notebook: NodeyNotebook, createNewModel: Boolean = true) {
+  export async function convert(history: History, notebook: NodeyNotebook, createNewModel: Boolean = true, clickedNode: RawNodeDatum = undefined) {
     const ver_notebook = history.notebook;
 
     // first match language of notebook
@@ -85,6 +86,12 @@ export namespace GhostToNotebookConverter {
           
           // Set current notebook index to the index of the checkpoint we clicked on:
           history.store.currentNotebookIndex = notebook.version;
+          console.log(clickedNode);
+          if (clickedNode != null) {
+            console.log(history.store.currentNode);
+            console.log(history.store.currentNode == clickedNode);
+            history.store.setCurrentNodeDatum(clickedNode);
+          }
         }
       })
     );

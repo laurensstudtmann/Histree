@@ -32,5 +32,6 @@ export class SwitchCellType extends NotebookEvent {
       newNodey,
       this.checkpoint
     );
+    this.history.store.appendNodeToTree(this.checkpoint, "changeCellType");
   }
 }

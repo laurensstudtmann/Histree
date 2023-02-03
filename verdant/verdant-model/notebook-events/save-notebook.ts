@@ -1,4 +1,5 @@
 import { NotebookEvent } from ".";
+import { log } from "../notebook";
 
 export class SaveNotebook extends NotebookEvent {
   async modelUpdate() {
@@ -14,6 +15,8 @@ export class SaveNotebook extends NotebookEvent {
     this.checkpoint = await this.history.stage.commit(this.checkpoint, {
       ignore_output: true,
     });
+    log("Notebook saved, no node added");
+    //this.history.store.appendNodeToTree(this.checkpoint, "save");
   }
 
   endEvent() {

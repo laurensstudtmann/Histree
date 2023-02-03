@@ -35,6 +35,7 @@ export class CreateCell extends NotebookEvent {
       this.cell_index,
       this.checkpoint
     );
+    this.history.store.appendNodeToTree(this.checkpoint, "add");
     log("CELL CREATED", newCell, this.notebook.cells);
   }
 }
