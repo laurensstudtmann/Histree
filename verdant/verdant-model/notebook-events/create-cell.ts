@@ -21,6 +21,7 @@ export class CreateCell extends NotebookEvent {
   }
 
   async modelUpdate() {
+    console.log(this.checkpoint);
     // create the representation of the new cell
     let nodey = await this.notebook.ast.create.fromCell(
       this.cell,

@@ -95,6 +95,7 @@ export const eventReducer = (
       else return eventView;
     case UPDATE_CHECKPOINT:
       if (action.currentEvent != eventView.currentEvent) {
+        console.log("eventview:", eventView);
         return {
           // update both event map and current event with new event
           ...eventView,
@@ -195,9 +196,11 @@ export function reducer_addEvent(
     newEvent.targetCells?.length < 1
   )
     return;
-
+  
+  let dateListMissing = date_list == null;
   let time = newEvent.timestamp;
-  let currentDate = date_list[date_list.length - 1];
+  let currentDate = dateListMissing ? undefined : date_list[date_list.length - 1];
+  let return_date_list = [];
   let date: dateState;
   let idx: number;
   if (!currentDate || !Checkpoint.sameDay(time, currentDate.date)) {
@@ -209,7 +212,8 @@ export function reducer_addEvent(
       events: [newEvent],
       bundles: [],
     };
-    date_list.push(newDate);
+    if (!dateListMissing) return_date_list = date_list;
+    return_date_list.push(newDate);
     date = newDate;
     idx = 0;
   } else {
@@ -219,13 +223,14 @@ export function reducer_addEvent(
       idx = currentDate.events.push(newEvent) - 1;
       date = currentDate;
     }
+    return_date_list = date_list;
   }
 
   // now add newEvent to bundles of the chosen date
   if (date?.isOpen)
     date.bundles = Bundles.bundleEvent(idx, date.events, date.bundles, history);
 
-  return date_list;
+  return return_date_list;
 }
 
 function reducer_initEventMap(state: verdantState) {

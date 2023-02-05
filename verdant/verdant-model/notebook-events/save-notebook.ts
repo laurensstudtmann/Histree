@@ -3,6 +3,7 @@ import { log } from "../notebook";
 
 export class SaveNotebook extends NotebookEvent {
   async modelUpdate() {
+    console.log(this.checkpoint);
     // look through cells for potential unsaved changes
     this.notebook.cells.forEach((cell) => {
       if (cell.model) {
@@ -15,8 +16,13 @@ export class SaveNotebook extends NotebookEvent {
     this.checkpoint = await this.history.stage.commit(this.checkpoint, {
       ignore_output: true,
     });
-    log("Notebook saved, no node added");
-    //this.history.store.appendNodeToTree(this.checkpoint, "save");
+    
+    if (this.checkpoint.notebook == null) log("Notebook saved, no changes, no node added.");
+    else {
+      log("Notebook saved with changes, adding node");
+      this.history.store.appendNodeToTree(this.checkpoint, "save");
+
+    }
   }
 
   endEvent() {

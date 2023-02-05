@@ -76,6 +76,7 @@ export type verdantState = {
 } & notebookState;
 
 export const createInitialState = (getHistory: () => History): verdantState => {
+  console.log("creating initial state");
   return {
     getHistory: getHistory,
     openGhostBook: (_: number) => {}, // default is do nothing
@@ -90,6 +91,7 @@ export const createInitialState = (getHistory: () => History): verdantState => {
 
 export const verdantReducer = (state: verdantState, action: any) => {
   console.log(action.type);
+  console.log("eventView in reducer:", state.eventView);
   switch (action.type) {
     case SET_GHOST_OPENER:
       return { ...state, openGhostBook: action.fun };
