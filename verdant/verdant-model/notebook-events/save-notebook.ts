@@ -6,7 +6,8 @@ export class SaveNotebook extends NotebookEvent {
     console.log(this.checkpoint);
     // look through cells for potential unsaved changes
     this.notebook.cells.forEach((cell) => {
-      if (cell.model) {
+      console.log(cell.model, "hidden:", cell.hiddenThroughTimetravel);
+      if (cell.model && !cell.hiddenThroughTimetravel) {
         this.history.stage.markAsPossiblyEdited(cell.model, this.checkpoint);
       }
     });

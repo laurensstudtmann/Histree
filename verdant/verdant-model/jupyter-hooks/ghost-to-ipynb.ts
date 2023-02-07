@@ -34,11 +34,41 @@ export namespace GhostToNotebookConverter {
 
       // Remove all current cells
       model.cells.clear();
+
+      // Prepare cell list to be of the correct length with placeholder cells.
+      //model.cells.pushAll(new Array(notebook?.cells?.length).fill(null));
+      // for (let i = 0; i < notebook?.cells?.length; i++)
+      //   model.cells.push({
+      //     id: i.toString(),
+      //     type: "code",
+      //     contentChanged: undefined,
+      //     stateChanged: undefined,
+      //     trusted: false,
+      //     metadata: undefined,
+      //     toJSON: function (): nbformat.ICell {
+      //       throw new Error("Function not implemented.");
+      //     },
+      //     mimeTypeChanged: undefined,
+      //     value: undefined,
+      //     mimeType: "",
+      //     selections: undefined,
+      //     modelDB: undefined,
+      //     isDisposed: false,
+      //     dispose: function (): void {
+      //       throw new Error("Function not implemented.");
+      //     }
+      //   });
+
+
+      // Mark all VerCells as hidden through time travel,
+      // so we can mark all the ones we add back to the notebook
+      // as visible again at the end of this method
+      ver_notebook.cells.forEach(c => c.hiddenThroughTimetravel = true);
     }
 
     // now create cells
-    await Promise.all(
-      notebook?.cells?.map(async (name, index) => {
+    //await Promise.all(
+      for (const [index, name] of notebook?.cells?.entries()) {//map(async (name, index) => {
         let cell = history.store.get(name);
         let val: ICellModel;
 
@@ -78,23 +108,33 @@ export namespace GhostToNotebookConverter {
           val = model.contentFactory.createRawCell({});
           val.value.text = cell.literal || "";
         }
-
+        console.log("val", val);
+        console.log("cell", cell, cell.name);
         if (val) {
-          model.cells.insert(index, val);
-          let verCell = ver_notebook.getCellByNode(cell)
-          if (verCell != null) verCell.view = ver_notebook.view.notebook.widgets[index];
-          
+          model.cells.push(val);
+          let verCell = ver_notebook.getCellByNode(cell);
+          console.log("vercell", verCell);
+          console.log("ver_notebook.cells", ver_notebook.cells, ver_notebook.cells.map(c => c.model.name));
+
+          if (verCell == null) {
+            // No exact match found for the cell. Get the different version of the cell.
+            verCell = ver_notebook.getRelatedCellByNode(cell);
+            //verCell.model.version = cell.version;
+            verCell.setModel(cell.name);
+            // TODO: Are there instances where multiple VerCells could be found here?
+            // Or where verCell would still be null here?
+          }
+          verCell.view = ver_notebook.view.notebook.widgets[index];
+          verCell.hiddenThroughTimetravel = false;
           // Set current notebook index to the index of the checkpoint we clicked on:
           history.store.currentNotebookIndex = notebook.version;
-          console.log(clickedNode);
           if (clickedNode != null) {
-            console.log(history.store.currentNode);
-            console.log(history.store.currentNode == clickedNode);
+
             history.store.setCurrentNodeDatum(clickedNode);
           }
         }
-      })
-    );
+      }//)
+    //);
     ver_notebook.canListen = true;  // Enable events again
     return model;
   }

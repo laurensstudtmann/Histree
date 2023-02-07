@@ -109,6 +109,15 @@ export class VerNotebook {
     );
   }
 
+  // Less strict search compared to getCellByNode.
+  // find the VerCell that has the same node number, but the version number may differ
+  public getRelatedCellByNode(cell: NodeyCell): VerCell | undefined {
+    return this.cells.find(
+      (item) =>
+        cell?.artifactName === item?.model?.artifactName && item?.model?.artifactName !== undefined
+    );
+  }
+
   public async focusCell(cell: Cell): Promise<VerCell> {
     await Promise.all(this.eventQueue).then(() => (this.eventQueue = []));
     let ev = new Promise<VerCell>((accept) => {

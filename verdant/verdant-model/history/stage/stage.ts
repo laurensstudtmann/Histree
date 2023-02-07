@@ -78,6 +78,7 @@ export class Stage {
         }
       })
     );
+    console.log("staged: ", this.isEdited());
     // empty after all have been considered
     this.dirty_nodey = [];
   }

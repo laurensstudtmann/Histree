@@ -59,7 +59,10 @@ const buildTreeRecursive = (checkpoints: Checkpoint[], index: number, currentNod
 
 const handleNodeClick = (node: any, history: History) => {
   let nodeDatum: TreeNodeDatum = node.data;
-  if (nodeDatum.attributes == null || nodeDatum.attributes.notebook == null) return; // Do not do anything when root node is clicked
+  if (nodeDatum.attributes == null || nodeDatum.attributes.notebook == null) {
+    console.log("vernotebook cells", history.notebook.cells, history.notebook.cells.map(c => c.model.name));
+    return; // Do not do anything when root node is clicked
+  }
   GhostToNotebookConverter.convert(history, history.store.getNotebook(nodeDatum.attributes.notebook as number), false, nodeDatum);
 }
 
