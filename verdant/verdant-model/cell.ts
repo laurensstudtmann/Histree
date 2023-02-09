@@ -27,7 +27,7 @@ export class VerCell {
   /**
    * Parent VerNotebook of this cell
    */
-  private readonly notebook: VerNotebook;
+  public readonly notebook: VerNotebook;
 
   /**
    * last seen text for when the cell is deleted
