@@ -14,12 +14,6 @@ export class VerCell {
   public view: Cell;
 
   /**
-   * Is set to true when a particular cell is no longer visible because
-   * we have travelled to a different checkpoint where this cell does not exist.
-   */
-  public hiddenThroughTimetravel: boolean;
-
-  /**
    * Reference for our model's Nodey representation of the cell
    */
   private modelName: string;

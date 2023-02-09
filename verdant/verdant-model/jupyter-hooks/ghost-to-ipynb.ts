@@ -9,6 +9,7 @@ import {
 import * as nbformat from "@jupyterlab/nbformat";
 import { CodeCellModel, ICellModel } from "@jupyterlab/cells";
 import { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
+import { VerCell } from "../cell";
 
 export namespace GhostToNotebookConverter {
   export async function convert(history: History, notebook: NodeyNotebook, createNewModel: Boolean = true, clickedNode: RawNodeDatum = undefined) {
@@ -34,6 +35,7 @@ export namespace GhostToNotebookConverter {
 
       // Remove all current cells
       model.cells.clear();
+      ver_notebook.cells = [];
 
       // Prepare cell list to be of the correct length with placeholder cells.
       //model.cells.pushAll(new Array(notebook?.cells?.length).fill(null));
@@ -63,7 +65,6 @@ export namespace GhostToNotebookConverter {
       // Mark all VerCells as hidden through time travel,
       // so we can mark all the ones we add back to the notebook
       // as visible again at the end of this method
-      ver_notebook.cells.forEach(c => c.hiddenThroughTimetravel = true);
     }
 
     // now create cells
@@ -111,25 +112,16 @@ export namespace GhostToNotebookConverter {
         console.log("val", val);
         console.log("cell", cell, cell.name);
         if (val) {
+          // Add cell to Jupyter Notebook
           model.cells.push(val);
-          let verCell = ver_notebook.getCellByNode(cell);
-          console.log("vercell", verCell);
-          console.log("ver_notebook.cells", ver_notebook.cells, ver_notebook.cells.map(c => c.model.name));
+          
+          // Create corresponding VerCell and add it to the VerNotebook
+          let verCell = new VerCell(ver_notebook, ver_notebook.view.notebook.widgets[index], cell.name);
+          ver_notebook.cells[index] = verCell;
 
-          if (verCell == null) {
-            // No exact match found for the cell. Get the different version of the cell.
-            verCell = ver_notebook.getRelatedCellByNode(cell);
-            //verCell.model.version = cell.version;
-            verCell.setModel(cell.name);
-            // TODO: Are there instances where multiple VerCells could be found here?
-            // Or where verCell would still be null here?
-          }
-          verCell.view = ver_notebook.view.notebook.widgets[index];
-          verCell.hiddenThroughTimetravel = false;
           // Set current notebook index to the index of the checkpoint we clicked on:
           history.store.currentNotebookIndex = notebook.version;
           if (clickedNode != null) {
-
             history.store.setCurrentNodeDatum(clickedNode);
           }
         }

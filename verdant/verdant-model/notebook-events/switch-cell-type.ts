@@ -1,7 +1,6 @@
 import { NotebookEvent } from ".";
 import { Cell } from "@jupyterlab/cells";
 import { VerNotebook } from "../notebook";
-import { VerCell } from "../cell";
 
 export class SwitchCellType extends NotebookEvent {
   cell: Cell;
@@ -19,15 +18,13 @@ export class SwitchCellType extends NotebookEvent {
       this.cell,
       this.checkpoint
     );
-    let oldVerCell = this.notebook.cells[this.cell_index];
-    let verCell = new VerCell(this.notebook, this.cell, newNodey.name);
-    this.notebook.cells.splice(this.cell_index, 0, verCell);
+    let verCell = this.notebook.cells[this.cell_index];
 
     // make pointer in history from old type to new type
-    let oldNodey = oldVerCell?.model;
+    let oldNodey = verCell?.model;
     this.history.store.linkBackHistories(newNodey, oldNodey);
-    // if (newNodey.name) verCell?.setModel(newNodey.name);
-    // verCell.view = this.cell;
+    if (newNodey.name) verCell?.setModel(newNodey.name);
+    verCell.view = this.cell;
 
     // make sure cell is added to notebook model
     this.checkpoint = this.history.stage.commitCellTypeChanged(
@@ -36,8 +33,5 @@ export class SwitchCellType extends NotebookEvent {
       this.checkpoint
     );
     this.history.store.appendNodeToTree(this.checkpoint, "changeCellType");
-
-    console.log(oldVerCell);
-    console.log(verCell);
   }
 }
