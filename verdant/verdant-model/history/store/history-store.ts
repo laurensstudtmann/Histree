@@ -346,6 +346,7 @@ export class HistoryStore {
       rawCells: this._rawCellStore.map((hist) => hist.toJSON()),
       snippets: this._snippetStore.map((hist) => hist.toJSON()),
       output: this._outputStore.map((hist) => hist.toJSON()),
+      historyTree: this._historyTree
     };
   }
 
@@ -392,6 +393,7 @@ export class HistoryStore {
       NodeyNotebook.fromJSON,
       0 // all notebooks have an id of 0, it's a singleton
     );
+    this._historyTree = data.historyTree;
   }
 
   /*
@@ -416,6 +418,7 @@ export class HistoryStore {
     let markdownCells = this.sliceStore(this._markdownStore, fromTime, toTime);
     let rawCells = this.sliceStore(this._rawCellStore, fromTime, toTime);
     let output = this.sliceStore(this._outputStore, fromTime, toTime);
+    let historyTree = this._historyTree;  // Not actually a slice...
 
     return {
       notebook: notebookList,
@@ -424,6 +427,7 @@ export class HistoryStore {
       rawCells,
       snippets: [],
       output,
+      historyTree,
     };
   }
 
@@ -450,5 +454,6 @@ export namespace HistoryStore {
     rawCells: NodeHistory.SERIALIZE[];
     snippets: NodeHistory.SERIALIZE[];
     output: NodeHistory.SERIALIZE[];
+    historyTree: RawNodeDatum;
   }
 }
