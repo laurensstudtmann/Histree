@@ -346,7 +346,8 @@ export class HistoryStore {
       rawCells: this._rawCellStore.map((hist) => hist.toJSON()),
       snippets: this._snippetStore.map((hist) => hist.toJSON()),
       output: this._outputStore.map((hist) => hist.toJSON()),
-      historyTree: this._historyTree
+      historyTree: this._historyTree,
+      currentNotebookIndex: this.currentNotebookIndex
     };
   }
 
@@ -394,6 +395,20 @@ export class HistoryStore {
       0 // all notebooks have an id of 0, it's a singleton
     );
     this._historyTree = data.historyTree;
+    this.currentNotebookIndex = data.currentNotebookIndex;
+    this.currentNode = this.findNodeByIndex(this._historyTree, this.currentNotebookIndex);
+  }
+
+  // DFS of history tree to get a particular node
+  private findNodeByIndex(tree: RawNodeDatum, index: number): RawNodeDatum {
+    if (tree.attributes && tree.attributes.notebook === index)
+      return tree;
+    let res: RawNodeDatum;
+    for (const child of tree.children) {
+      res = this.findNodeByIndex(child, index);
+      if (res != null) return res;
+    }
+    return null;
   }
 
   /*
@@ -419,6 +434,7 @@ export class HistoryStore {
     let rawCells = this.sliceStore(this._rawCellStore, fromTime, toTime);
     let output = this.sliceStore(this._outputStore, fromTime, toTime);
     let historyTree = this._historyTree;  // Not actually a slice...
+    let currentNotebookIndex = this.currentNotebookIndex;
 
     return {
       notebook: notebookList,
@@ -428,6 +444,7 @@ export class HistoryStore {
       snippets: [],
       output,
       historyTree,
+      currentNotebookIndex,
     };
   }
 
@@ -455,5 +472,6 @@ export namespace HistoryStore {
     snippets: NodeHistory.SERIALIZE[];
     output: NodeHistory.SERIALIZE[];
     historyTree: RawNodeDatum;
+    currentNotebookIndex: number;
   }
 }
