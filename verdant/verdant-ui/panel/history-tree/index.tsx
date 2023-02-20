@@ -7,6 +7,8 @@ import Tree from 'react-d3-tree';
 import { RawNodeDatum, TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/ghost-to-ipynb";
 import { log } from "../../../verdant-model/notebook";
+import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon } from "../../../verdant-ui/icons";
+//import playCustom from "playCustom.png";
 
 //const PANEL = "v-VerdantPanel-content";
 
@@ -44,6 +46,46 @@ import { log } from "../../../verdant-model/notebook";
 };
 */
 
+// Here we're using `renderCustomNodeElement` render a component that uses
+// both SVG and HTML tags side-by-side.
+// This is made possible by `foreignObject`, which wraps the HTML tags to
+// allow for them to be injected into the SVG namespace.
+const renderForeignObjectNode = ({
+  nodeDatum,
+  onNodeClick,
+  toggleNode,
+  foreignObjectProps,
+  currentNotebookIndex
+}) => (
+  <g>
+    <circle r={15} fill={nodeDatum.attributes.changeType === "add" ? "#43A047" : "#1E88E5"} stroke="none" onClick={onNodeClick}>
+    </circle>
+    {renderIcon(nodeDatum.attributes.changeType, onNodeClick)}
+    {nodeDatum.attributes.notebook === currentNotebookIndex && (
+      <circle r={20} fill="none" stroke={nodeDatum.attributes.changeType === "add" ? "#43A047" : "#1E88E5"} strokeWidth="3px" />
+    )}
+    {/* `foreignObject` requires width & height to be explicitly set. */}
+    {false && (
+      <foreignObject {...foreignObjectProps}>
+        <div style={{ verticalAlign: "top", textAlign: "center" }}>{nodeDatum.name}</div>
+      </foreignObject>
+    )}
+  </g>
+);
+
+const renderIcon = (changeType: string, onNodeClick: any) => {
+  if (changeType === "add")
+    return <PlusIcon onClick={onNodeClick}></PlusIcon>
+  else if (changeType === "save")
+    return <SaveIcon onClick={onNodeClick}></SaveIcon>
+  else if (changeType === "execute")
+    return <PlayIcon onClick={onNodeClick}></PlayIcon>
+  else if (changeType === "move")
+    return <MoveIcon onClick={onNodeClick}></MoveIcon>
+  else if (changeType === "changeCellType")
+    return <SwapIcon onClick={onNodeClick}></SwapIcon>
+}
+
 const makeTreeData = (checkpoints: Checkpoint[]) => {
   let res = { name: "root", children: [] };
   return buildTreeRecursive(checkpoints, 0, res);
@@ -76,6 +118,8 @@ let css = `
       height: 100%
     }
     `;
+const nodeSize = { x: 40, y: 40 };
+const foreignObjectProps = { width: nodeSize.x + 5, height: nodeSize.y, x: 18, y: -10 };
 
 type TreeTab_Props = {
   checkpoints: Checkpoint[];
@@ -86,17 +130,20 @@ type TreeTab_Props = {
 }
 class TreeTab extends React.Component<TreeTab_Props> {
   render() {
+    const currentNotebookIndex = this.props.history.store.currentNotebookIndex;
     return (
       <div className="full-height">
         <style>{css}</style>
+        {/* <img src={playCustom} /> */}
         <Tree data={this.props.treeData}
           rootNodeClassName="node__all"
           branchNodeClassName="node__all"
           leafNodeClassName="node__all"
           orientation="vertical"
-          nodeSize={{ x: 40, y: 40 }}
+          nodeSize={nodeSize}
           zoom={0.65}
           collapsible={false}
+          renderCustomNodeElement={(rd3tProps) => renderForeignObjectNode({ ...rd3tProps, foreignObjectProps, currentNotebookIndex })}
           onNodeClick={(node) => handleNodeClick(node, this.props.history)}
         />
       </div>

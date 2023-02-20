@@ -1931,6 +1931,18 @@
     "@lumino/signaling" "^1.4.3"
     "@lumino/virtualdom" "^1.8.0"
 
+"@mdi/js@^7.1.96":
+  "integrity" "sha512-wlrJs6Ryhaa5CqhK3FjTfMRnb/s7HeLkKMFqwQySkK86cdN1TGdzpSM3O4tsmzCA1dYBeTbXvOwSE/Y42cUrvA=="
+  "resolved" "https://registry.npmjs.org/@mdi/js/-/js-7.1.96.tgz"
+  "version" "7.1.96"
+
+"@mdi/react@^1.6.1":
+  "integrity" "sha512-4qZeDcluDFGFTWkHs86VOlHkm6gnKaMql13/gpIcUQ8kzxHgpj31NuCkD8abECVfbULJ3shc7Yt4HJ6Wu6SN4w=="
+  "resolved" "https://registry.npmjs.org/@mdi/react/-/react-1.6.1.tgz"
+  "version" "1.6.1"
+  dependencies:
+    "prop-types" "^15.7.2"
+
 "@sinonjs/commons@^1.7.0":
   "integrity" "sha512-sruwd86RJHdsVf/AtBoijDmUqJp3B6hF/DGC23C+JaegnDHaZyewCjoVGTdg3J0uz3Zs7NnIT05OBOmML72lQw=="
   "resolved" "https://registry.npmjs.org/@sinonjs/commons/-/commons-1.8.2.tgz"

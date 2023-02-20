@@ -18,5 +18,5 @@
     "jsx": "react",
     "resolveJsonModule": true
   },
-  "include": ["verdant/**/*", "verdant/tests"]
+  "include": ["verdant/**/*", "verdant/tests", "index.d.ts"]
 }
