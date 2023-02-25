@@ -16,7 +16,7 @@ export class VerCell {
   /**
    * Reference for our model's Nodey representation of the cell
    */
-  private modelName: string;
+  public modelName: string;
 
   /**
    * Parent VerNotebook of this cell
@@ -42,7 +42,7 @@ export class VerCell {
    */
   public get model(): NodeyCell | undefined {
     if (this.modelName)
-      return this.notebook?.history?.store.getLatestOf(this.modelName);
+      return this.notebook?.history?.store.get(this.modelName);
   }
 
   /**

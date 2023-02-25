@@ -197,7 +197,12 @@ export class Commit {
           newCell = this.createMarkdownVersion(cell.artifactName, instructions);
         else if (cell instanceof NodeyRawCell)
           newCell = this.createRawCellVersion(cell.artifactName, instructions);
-        return newCell?.name || c; // return unchanged cell if error occurred
+        if (newCell) {
+          this.history.notebook.getCellByNode(cell).setModel(newCell.name); // Update model names of respective verCell
+          return newCell.name || c; // return unchanged cell if error occurred
+        } else {
+          return c;
+        }
       } else {
         // otherwise assume this cell is unchanged in this commit
         return c;

@@ -30,6 +30,7 @@ const SET_GHOST_OPENER = "SET_GHOST_OPENER";
 const SWITCH_TAB = "SWITCH_TAB";
 const INSPECT_TARGET = "INSPECT_TARGET";
 const GOTO_EVENT = "GOTO_EVENT";
+const SWITCH_CHECKPOINT = "SWITCH_CHECKPOINT";
 
 export const setGhostOpener = (fun: (notebook: number) => void) => {
   return {
@@ -157,6 +158,7 @@ export const verdantReducer = (state: verdantState, action: any) => {
         ...notebookReducer(state, action),
         eventView: eventReducer(state, action),
       };
+    case SWITCH_CHECKPOINT:
     case UPDATE_CHECKPOINT:
       // both of these cases require an update of notebook as well as event view
       let state_1 = notebookReducer(state, action);

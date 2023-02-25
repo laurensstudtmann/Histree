@@ -1,4 +1,4 @@
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import * as React from "react";
 import { verdantState } from "verdant/verdant-ui/redux";
 import { History } from "../../../verdant-model/history";
@@ -65,7 +65,7 @@ const renderForeignObjectNode = ({
       <circle r={20} fill="none" stroke={nodeDatum.attributes.changeType === "add" ? "#43A047" : "#1E88E5"} strokeWidth="3px" />
     )}
     {/* `foreignObject` requires width & height to be explicitly set. */}
-    {false && (
+    {true && (
       <foreignObject {...foreignObjectProps}>
         <div style={{ verticalAlign: "top", textAlign: "center" }}>{nodeDatum.name}</div>
       </foreignObject>
@@ -99,13 +99,14 @@ const buildTreeRecursive = (checkpoints: Checkpoint[], index: number, currentNod
   return currentNode;
 };
 
-const handleNodeClick = (node: any, history: History) => {
+const handleNodeClick = (node: any, history: History, switchActionFn: Function) => {
   let nodeDatum: TreeNodeDatum = node.data;
   if (nodeDatum.attributes == null || nodeDatum.attributes.notebook == null) {
-    console.log("vernotebook cells", history.notebook.cells, history.notebook.cells.map(c => c.model.name));
+    console.log("vernotebook cells", history.notebook.cells, history.notebook.cells.map(c => c.modelName));
     return; // Do not do anything when root node is clicked
   }
-  GhostToNotebookConverter.convert(history, history.store.getNotebook(nodeDatum.attributes.notebook as number), false, nodeDatum);
+  GhostToNotebookConverter.convert(history, history.store.getNotebook(nodeDatum.attributes.notebook as number), false, nodeDatum)
+    .then(() => switchActionFn());
 }
 
 let css = `
@@ -121,19 +122,22 @@ let css = `
 const nodeSize = { x: 40, y: 40 };
 const foreignObjectProps = { width: nodeSize.x + 5, height: nodeSize.y, x: 18, y: -10 };
 
-type TreeTab_Props = {
+/*type TreeTab_Props = {
   checkpoints: Checkpoint[];
   history: History
   numberOfCheckpoints: number
+  currentNodeName: string
   treeData: RawNodeDatum
   treeDataLinear: RawNodeDatum
-}
+}*/
+type TreeTab_Props = ConnectedProps<typeof connector>;
 class TreeTab extends React.Component<TreeTab_Props> {
   render() {
     const currentNotebookIndex = this.props.history.store.currentNotebookIndex;
     return (
       <div className="full-height">
         <style>{css}</style>
+        <div>{this.props.currentNodeName}</div>
         {/* <img src={playCustom} /> */}
         <Tree data={this.props.treeData}
           rootNodeClassName="node__all"
@@ -144,7 +148,7 @@ class TreeTab extends React.Component<TreeTab_Props> {
           zoom={0.65}
           collapsible={false}
           renderCustomNodeElement={(rd3tProps) => renderForeignObjectNode({ ...rd3tProps, foreignObjectProps, currentNotebookIndex })}
-          onNodeClick={(node) => handleNodeClick(node, this.props.history)}
+          onNodeClick={(node) => handleNodeClick(node, this.props.history, this.props.switchCheckpoint)}
         />
       </div>
     );
@@ -155,13 +159,19 @@ const mapStateToProps = (state: verdantState) => {
   let history = state.getHistory();
   let checkpoints = history.checkpoints.all();
   let numberOfCheckpoints = checkpoints.length; // Workaround to get React to rerender the component when a checkpoint is added
-
+  let currentNodeName = history.store.currentNode.name;  // Another workaround for rerendering
   // Do a shallow copy of the history tree data structure to force a rerender (react-d3-tree does not update otherwise)
   let treeData = Object.assign({ attributes: { numberOfCheckpoints } }, history.store.historyTree);
 
   let treeDataLinear = makeTreeData(checkpoints);   // Linear version of the tree for comparison (debugging purposes)
   log(treeData);
-  return { checkpoints, history, numberOfCheckpoints, treeData, treeDataLinear };
+  return { checkpoints, history, numberOfCheckpoints, currentNodeName, treeData, treeDataLinear };
 };
 
-export default connect(mapStateToProps, null)(TreeTab)
+const mapDispatchToProps = {
+  switchCheckpoint: () => ({ type: "SWITCH_CHECKPOINT"}),
+}
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+export default connector(TreeTab);

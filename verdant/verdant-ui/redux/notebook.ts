@@ -4,6 +4,7 @@ import { VerCell } from "../../verdant-model/cell";
 import { INIT_EVENT_MAP, UPDATE_CHECKPOINT } from "./viewStates/events";
 
 const FOCUS_CELL = "FOCUS_CELL";
+const SWITCH_CHECKPOINT = "SWITCH_CHECKPOINT";
 
 export const focusCell = (cell_index: number) => {
   return {
@@ -40,6 +41,7 @@ export const notebookReducer = (
   switch (action.type) {
     case FOCUS_CELL:
       return { ...state, focusedCell: action.cell_index };
+    case SWITCH_CHECKPOINT:
     case INIT_EVENT_MAP:
     case UPDATE_CHECKPOINT:
       // both of these cases require an update of notebook as well as event view

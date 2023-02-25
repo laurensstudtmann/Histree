@@ -19,7 +19,7 @@ import { jsn } from "../../notebook";
  */
 export class Stage {
   readonly history: History;
-  private readonly fileManager: FileManager;
+  //private readonly fileManager: FileManager;
 
   /*
    * Dirty nodey lists nodey that *might* be changed, but we'll need to verify
@@ -40,7 +40,7 @@ export class Stage {
 
   constructor(history: History, fileManager: FileManager) {
     this.history = history;
-    this.fileManager = fileManager;
+    //this.fileManager = fileManager;
   }
 
   public getAllStaged(): Nodey[] {
@@ -113,6 +113,28 @@ export class Stage {
     let raw: IOutput[] = []; // no output
     if (outputArea) raw = cell?.outputArea?.model.toJSON() || []; // output if present
 
+    // first, don't record this output if it is completely errors
+    let onlyErrors = OutputHistory.checkForAllErrors(raw);
+
+    if (!onlyErrors) {
+      // make instructions for a new Output in staging
+      if (!this.staged_codeCell[nodey.artifactName]) {
+        this.staged_codeCell[nodey.artifactName] = {};
+        this.staged_total.push(nodey);
+      }
+      //if (raw.length === 0)
+      //  raw = [{ name: "stdout", output_type: "stream", text: "This is a workaround, there should not be any output here." }];
+      this.staged_codeCell[nodey.artifactName]["output"] = raw;
+    }
+  }
+
+  /*private async checkOutputNodey(nodey: NodeyCodeCell) {
+    // get current (new) output if any
+    let cell = this.history.notebook.getCellByNode(nodey);
+    let outputArea = cell?.outputArea;
+    let raw: IOutput[] = []; // no output
+    if (outputArea) raw = cell?.outputArea?.model.toJSON() || []; // output if present
+
     // get prior output if any
     let oldOutput = cell?.output;
 
@@ -134,7 +156,7 @@ export class Stage {
         this.staged_codeCell[nodey.artifactName]["output"] = raw;
       }
     }
-  }
+  }*/
 
   private checkMarkdownNodey(nodey: NodeyMarkdown) {
     let cell = this.history.notebook.getCellByNode(nodey);
