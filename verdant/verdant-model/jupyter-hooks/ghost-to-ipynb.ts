@@ -147,15 +147,13 @@ export namespace GhostToNotebookConverter {
     let old_nodeyNotebook = ver_notebook.model;
     console.log("old_nodeyNotebook.cells", old_nodeyNotebook.cells);
 
-    await insertICells(notebook.cells, model.cells, JSON.parse(JSON.stringify(old_nodeyNotebook.cells)), generateCell);// ver_notebook.cells.map(vc => vc.modelName), history);  // vc.model.name
+    let verCellNames = ver_notebook.cells.map(vc => vc.modelName);  //JSON.parse(JSON.stringify(old_nodeyNotebook.cells));
+
+    await insertICells(notebook.cells, model.cells, verCellNames, generateCell);// ver_notebook.cells.map(vc => vc.modelName), history);  // vc.model.name
     if (ENABLE_CORRECTNESS_CHECK) checkICells(iCellModels, model.cells);
-    //model.cells.insertAll(0, iCellModels);
+
     let icellsDone = new Date().getTime();
-    console.log(model.cells);
-    console.log(iCellModels);
-    console.log(ver_notebook.view.notebook.widgets);
-    console.log(notebook.cells);
-    console.log("FOR LOOP");
+
     ver_notebook.cells = [];
     for (let i = 0; i < model.cells.length; i++) {
       // Create corresponding VerCell and add it to the VerNotebook
