@@ -28,7 +28,7 @@
     "start": "jupyter labextension install . && jupyter lab .",
     "clean": "rimraf lib & jupyter lab clean",
     "test": "jest",
-    "watch": "jupyter lab --watch .",
+    "watch": "tsc -w",
     "commit": "npx git-cz"
   },
   "dependencies": {
