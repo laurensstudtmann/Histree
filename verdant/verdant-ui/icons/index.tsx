@@ -1,44 +1,41 @@
 import * as React from "react";
 
-type OnClickProps = {
-  onClick: React.MouseEventHandler;
-}
-export class PlayIcon extends React.Component<OnClickProps> {
+export class PlayIcon extends React.Component {
   render() {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" onClick={this.props.onClick} x={-12} y={-12} viewBox="0 0 24 24" height="24px" width="24px" fill="#fff" stroke="none"><title>Execute Cell</title><path d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" x={-12} y={-12} viewBox="0 0 24 24" height="24px" width="24px" fill="#fff" stroke="none"><title>Execute Cell</title><path d="M8,5.14V19.14L19,12.14L8,5.14Z" /></svg>
     );
   }
 }
 
-export class PlusIcon extends React.Component<OnClickProps> {
+export class PlusIcon extends React.Component {
   render() {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" onClick={this.props.onClick} x={-12} y={-12} viewBox="0 0 24 24" height="24px" width="24px" fill="#fff" stroke="#fff" strokeWidth={1}><title>Add Cell</title><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" x={-12} y={-12} viewBox="0 0 24 24" height="24px" width="24px" fill="#fff" stroke="#fff" strokeWidth={1}><title>Add Cell</title><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>
     );
   }
 }
 
-export class SaveIcon extends React.Component<OnClickProps> {
+export class SaveIcon extends React.Component {
   render() {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" onClick={this.props.onClick} x={-10} y={-10} viewBox="0 0 24 24" height="20px" width="20px" fill="#fff" stroke="none"><title>Save Notebook</title><path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" /></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" x={-10} y={-10} viewBox="0 0 24 24" height="20px" width="20px" fill="#fff" stroke="none"><title>Save Notebook</title><path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" /></svg>
     );
   }
 }
 
-export class MoveIcon extends React.Component<OnClickProps> {
+export class MoveIcon extends React.Component {
   render() {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" onClick={this.props.onClick} x={-12} y={-12} viewBox="0 0 24 24" height="24px" width="24px" fill="#fff" stroke="none"><title>Move Cell</title><path d="M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z" /></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" x={-12} y={-12} viewBox="0 0 24 24" height="24px" width="24px" fill="#fff" stroke="none"><title>Move Cell</title><path d="M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z" /></svg>
     );
   }
 }
 
-export class SwapIcon extends React.Component<OnClickProps> {
+export class SwapIcon extends React.Component {
   render() {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" onClick={this.props.onClick} x={-12} y={-12} viewBox="0 0 24 24" height="24px" width="24px" fill="#fff" stroke="none"><title>Change Cell Type</title><path d="M21,9L17,5V8H10V10H17V13M7,11L3,15L7,19V16H14V14H7V11Z" /></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" x={-12} y={-12} viewBox="0 0 24 24" height="24px" width="24px" fill="#fff" stroke="none"><title>Change Cell Type</title><path d="M21,9L17,5V8H10V10H17V13M7,11L3,15L7,19V16H14V14H7V11Z" /></svg>
     );
   }
 }
