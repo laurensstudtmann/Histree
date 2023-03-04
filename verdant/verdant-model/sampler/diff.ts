@@ -16,6 +16,7 @@ export enum DIFF_TYPE {
   NO_DIFF,
   CHANGE_DIFF,
   PRESENT_DIFF,
+  TREE_CHANGE_DIFF,
 }
 
 export type DiffCell = {
@@ -145,7 +146,7 @@ export class Diff {
       cellParent = this.history.store?.get(nodey.parent);
     }
 
-    if (diffKind === DIFF_TYPE.CHANGE_DIFF) {
+    if (diffKind === DIFF_TYPE.CHANGE_DIFF || diffKind === DIFF_TYPE.TREE_CHANGE_DIFF) {
       priorNodey = nodeyHistory?.getVersion(nodey.version - 1);
 
       /*
@@ -159,7 +160,7 @@ export class Diff {
           priorNodey = undefined;
           diffKind = DIFF_TYPE.NO_DIFF;
         } else {
-          if (!priorNodey && cellParent) {
+          if (diffKind === DIFF_TYPE.TREE_CHANGE_DIFF || (!priorNodey && cellParent)) {
             let rel = this.history?.store.getNotebook(relativeToNotebook);
             priorNodey = this.history?.store?.getOutputForNotebook(
               cellParent,

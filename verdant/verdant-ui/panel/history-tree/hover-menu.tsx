@@ -27,7 +27,7 @@ const renderDiff = (props: HoverMenuProps, notebook_number: number) => {
 
   const parentNode = props.history.store.getParentNode(props.nodeDatum) as VerTreeNodeDatum | undefined;
   const parentNumber = parentNode?.attributes?.notebook;
-  const diffType = parentNode ? DIFF_TYPE.CHANGE_DIFF : DIFF_TYPE.NO_DIFF;
+  const diffType = parentNode ? DIFF_TYPE.TREE_CHANGE_DIFF : DIFF_TYPE.NO_DIFF;
   const elementsPromise = Promise.all(nodeys.map(nodey => props.history.inspector.diff.renderCell(nodey, diffType, parentNumber)));
   return { elementsPromise, changeTypes, affectedCells, notebook_number };
 }
@@ -71,7 +71,7 @@ const HoverMenu = (props: HoverMenuProps) => {
       visibility: visible ? 'visible' : 'hidden'
 
     }} className="hover-menu-container" >
-      {/* {props.nodeDatum?.name} */}
+      {props.nodeDatum?.name}
       <HoverMenuDiff diff={diff} />
     </div >
   );
