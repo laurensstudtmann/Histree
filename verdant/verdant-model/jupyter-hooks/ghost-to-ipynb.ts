@@ -11,6 +11,7 @@ import { CodeCellModel, ICellModel } from "@jupyterlab/cells";
 import { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { VerCell } from "../cell";
 import { IObservableUndoableList } from "@jupyterlab/observables";
+// import { VerTreeNodeDatum } from "verdant/verdant-ui/panel/history-tree";
 
 const ENABLE_CORRECTNESS_CHECK = false;
 

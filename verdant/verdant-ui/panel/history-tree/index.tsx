@@ -1,7 +1,7 @@
 import { connect, ConnectedProps } from "react-redux";
 import * as React from "react";
 import { verdantState } from "verdant/verdant-ui/redux";
-import { Checkpoint } from "verdant/verdant-model/checkpoint";
+// import { Checkpoint } from "verdant/verdant-model/checkpoint";
 import Tree from 'react-d3-tree';
 import { RawNodeDatum, TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/ghost-to-ipynb";
@@ -10,6 +10,7 @@ import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon } from "../../../verda
 import HoverMenu from "./hover-menu";
 import ReactDOM from "react-dom";
 import { HierarchyPointNode } from 'd3-hierarchy';
+
 
 const renderIcon = (changeType: string) => {
   if (changeType === "add")
@@ -24,18 +25,18 @@ const renderIcon = (changeType: string) => {
     return <SwapIcon></SwapIcon>
 }
 
-const makeTreeData = (checkpoints: Checkpoint[]) => {
+/*const makeTreeData = (checkpoints: Checkpoint[]) => {
   let res = { name: "root", children: [] };
   return buildTreeRecursive(checkpoints, 0, res);
 };
 
-const buildTreeRecursive = (checkpoints: Checkpoint[], index: number, currentNode: RawNodeDatum) => {
+const buildTreeRecursive = (checkpoints: Checkpoint[], index: number, currentNode: VerTreeNodeDatum) => {
   if (index < checkpoints.length) {
     let nextNode = buildTreeRecursive(checkpoints, index + 1, { name: checkpoints[index].notebook.toString(), attributes: { notebook: checkpoints[index].notebook }, children: [] });
     currentNode.children.push(nextNode);
   }
   return currentNode;
-};
+};*/
 
 let css = `
     .node__all > circle {
@@ -50,12 +51,19 @@ let css = `
 const nodeSize = { x: 40, y: 40 };
 const foreignObjectProps = { width: nodeSize.x + 5, height: nodeSize.y, x: 18, y: -10 };
 
+export interface VerTreeNodeDatum extends RawNodeDatum {
+  attributes?: {
+    notebook: number,
+    changeType: string
+  },
+}
+
 type TreeTab_Props = ConnectedProps<typeof connector>;
 type TreeTab_State = {
   showHoverMenu: boolean,
   hoverX: number,
   hoverY: number,
-  hoverNodeDatum: RawNodeDatum,
+  hoverNodeDatum: VerTreeNodeDatum,
 }
 class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   currentNotebookIndex: number
@@ -71,8 +79,15 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     return (
       <div className="full-height">
         <style>{css}</style>
-        {this.state.showHoverMenu && ReactDOM.createPortal(<HoverMenu x={this.state.hoverX} y={this.state.hoverY} nodeDatum={this.state.hoverNodeDatum} />, document.body)}
-        <div>{this.props.currentNodeName}</div>
+        {ReactDOM.createPortal(
+          <HoverMenu
+            show={this.state.showHoverMenu}
+            x={this.state.hoverX}
+            y={this.state.hoverY}
+            nodeDatum={this.state.hoverNodeDatum}
+            history={this.props.history} />,
+          document.body)}
+        <div>{"asdf" + this.props.currentNodeName}</div>
         {/* <img src={playCustom} /> */}
         <Tree data={this.props.treeData}
           rootNodeClassName="node__all"
@@ -129,14 +144,14 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       .then(this.props.switchCheckpoint);
   }
 
-  handleMouseEnter(event: React.MouseEvent<SVGGElement, MouseEvent>, nodeDatum: RawNodeDatum) {
+  handleMouseEnter(event: React.MouseEvent<SVGGElement, MouseEvent>, nodeDatum: VerTreeNodeDatum) {
     let pos = event.currentTarget.getBoundingClientRect();
     this.setState({ hoverX: pos.right, hoverY: pos.top, showHoverMenu: true, hoverNodeDatum: nodeDatum })
     console.log("enteringg ", nodeDatum.name);
   }
-  handleMouseLeave(nodeDatum: RawNodeDatum) {
+  handleMouseLeave(nodeDatum: VerTreeNodeDatum) {
     console.log("leaving ", nodeDatum.name);
-    this.setState({ showHoverMenu: false });
+    this.setState({ showHoverMenu: false, hoverNodeDatum: null });
   }
 }
 
@@ -148,9 +163,9 @@ const mapStateToProps = (state: verdantState) => {
   // Do a shallow copy of the history tree data structure to force a rerender (react-d3-tree does not update otherwise)
   let treeData = Object.assign({ attributes: { numberOfCheckpoints } }, history.store.historyTree);
 
-  let treeDataLinear = makeTreeData(checkpoints);   // Linear version of the tree for comparison (debugging purposes)
+  // let treeDataLinear = makeTreeData(checkpoints);   // Linear version of the tree for comparison (debugging purposes)
   log(treeData);
-  return { checkpoints, history, numberOfCheckpoints, currentNodeName, treeData, treeDataLinear };
+  return { checkpoints, history, numberOfCheckpoints, currentNodeName, treeData };
 };
 
 const mapDispatchToProps = {

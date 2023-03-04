@@ -17,6 +17,7 @@ import { History, NodeHistory, OutputHistory, CodeHistory } from "..";
 import { Search } from "./search";
 import { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { Checkpoint } from "verdant/verdant-model/checkpoint";
+import { VerTreeNodeDatum } from "verdant/verdant-ui/panel/history-tree";
 
 export type searchResult = {
   label: string;
@@ -28,9 +29,9 @@ export class HistoryStore {
   readonly fileManager: FileManager;
   readonly history: History;
 
-  private _historyTree: RawNodeDatum = { name: "root", children: [] };  // root node of the history tree (including all the children)
+  private _historyTree: VerTreeNodeDatum = { name: "root", children: [] };  // root node of the history tree (including all the children)
   public currentNotebookIndex: number;                                  // Index of the notebook version that is currently selected and shown
-  public currentNode: RawNodeDatum = this._historyTree;                 // Node we are currently at in the tree
+  public currentNode: VerTreeNodeDatum = this._historyTree;                 // Node we are currently at in the tree
 
   private _notebookHistory: NodeHistory<NodeyNotebook>;
   private _codeCellStore: CodeHistory[] = [];
@@ -44,7 +45,7 @@ export class HistoryStore {
     this.history = history;
     this.fileManager = fileManager;
   }
-  get historyTree(): RawNodeDatum {
+  get historyTree(): VerTreeNodeDatum {
     return this._historyTree;
   }
   get currentNotebook(): NodeyNotebook | undefined {
@@ -184,16 +185,32 @@ export class HistoryStore {
 
   public setCurrentNodeDatum(node: RawNodeDatum) {
     // Need to perform search through the history tree to get the proper reference to this node
-    let resNode = this.tree_DFS(this._historyTree, node);
-    if (resNode != null) this.currentNode = resNode;
+    let resNode = this.tree_DFS(this._historyTree, node.attributes.notebook as number);
+    if (resNode != null) this.currentNode = resNode as VerTreeNodeDatum;
   }
-
-  private tree_DFS(subtree: RawNodeDatum, node: RawNodeDatum) {
-    if (node.attributes.notebook === subtree.attributes?.notebook) return subtree;
-    let res;
+  
+  private tree_DFS(subtree: RawNodeDatum, notebook_number: number) {
+    if (notebook_number === subtree.attributes?.notebook) return subtree;
+    let res: RawNodeDatum;
     let i = 0;
     while (res == null && i < subtree.children.length) {
-      res = this.tree_DFS(subtree.children[i], node);
+      res = this.tree_DFS(subtree.children[i], notebook_number);
+      i++;
+    }
+    return res;
+  }
+
+  public getParentNode(node: RawNodeDatum) {
+    return this.getParent_DFS(this._historyTree, node.attributes.notebook as number);
+  }
+
+  private getParent_DFS(subtree: RawNodeDatum, notebook_number: number) {
+    // if (notebook_number === subtree.attributes?.notebook) return subtree;
+    let res: RawNodeDatum;
+    let i = 0;
+    while (res == null && i < subtree.children.length) {
+      if (subtree.children[i].attributes.notebook === notebook_number) return subtree;
+      res = this.getParent_DFS(subtree.children[i], notebook_number);
       i++;
     }
     return res;
@@ -400,12 +417,12 @@ export class HistoryStore {
   }
 
   // DFS of history tree to get a particular node
-  private findNodeByIndex(tree: RawNodeDatum, index: number): RawNodeDatum {
+  private findNodeByIndex(tree: VerTreeNodeDatum, index: number): VerTreeNodeDatum {
     if (tree.attributes && tree.attributes.notebook === index)
       return tree;
-    let res: RawNodeDatum;
+    let res: VerTreeNodeDatum;
     for (const child of tree.children) {
-      res = this.findNodeByIndex(child, index);
+      res = this.findNodeByIndex(child as VerTreeNodeDatum, index);
       if (res != null) return res;
     }
     return null;
@@ -471,7 +488,7 @@ export namespace HistoryStore {
     rawCells: NodeHistory.SERIALIZE[];
     snippets: NodeHistory.SERIALIZE[];
     output: NodeHistory.SERIALIZE[];
-    historyTree: RawNodeDatum;
+    historyTree: VerTreeNodeDatum;
     currentNotebookIndex: number;
   }
 }
