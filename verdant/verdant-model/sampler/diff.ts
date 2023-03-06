@@ -145,8 +145,22 @@ export class Diff {
     if (nodey instanceof NodeyOutput) {
       cellParent = this.history.store?.get(nodey.parent);
     }
+    if (diffKind === DIFF_TYPE.TREE_CHANGE_DIFF) {
+      let priorNotebook = this.history.store.getNotebook(relativeToNotebook);
+      if (priorNotebook == null) return [undefined, diffKind];
+      const priorCells = priorNotebook.cells.map(name => this.history.store.get(name));
+      if (nodey instanceof NodeyOutput) {
+        console.log("nodeyoutput");
+        return [undefined, diffKind];
+        /*let priorParentNodey = cells.find(c => c.artifactName === cellParent.artifactName);
+        this.history.store.getOutput(priorParentNodey as NodeyCode).;*/
+      }
+      else {
+        priorNodey = priorCells.find(c => c.artifactName === nodey.artifactName);
+      }
+    }
 
-    if (diffKind === DIFF_TYPE.CHANGE_DIFF || diffKind === DIFF_TYPE.TREE_CHANGE_DIFF) {
+    if (diffKind === DIFF_TYPE.CHANGE_DIFF) {
       priorNodey = nodeyHistory?.getVersion(nodey.version - 1);
 
       /*
@@ -160,7 +174,7 @@ export class Diff {
           priorNodey = undefined;
           diffKind = DIFF_TYPE.NO_DIFF;
         } else {
-          if (diffKind === DIFF_TYPE.TREE_CHANGE_DIFF || (!priorNodey && cellParent)) {
+          if (!priorNodey && cellParent) {
             let rel = this.history?.store.getNotebook(relativeToNotebook);
             priorNodey = this.history?.store?.getOutputForNotebook(
               cellParent,

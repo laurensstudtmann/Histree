@@ -4,6 +4,7 @@ import { DIFF_TYPE } from "../../../verdant-model/sampler";
 import { VerTreeNodeDatum } from ".";
 import { History } from "../../../verdant-model/history";
 import { ChangeType } from "../../../verdant-model/checkpoint";
+//import { NodeyCodeCell } from "../../../verdant-model/nodey";
 
 /*const useConstructor = (callBack = () => { }) => {
   const [hasBeenCalled, setHasBeenCalled] = React.useState(false);
@@ -17,8 +18,12 @@ const renderDiff = (props: HoverMenuProps, notebook_number: number) => {
   const notebook = props.nodeDatum.attributes.notebook;
 
   const checkpoint = props.history.checkpoints.all()[notebook];
-  if (checkpoint == null) return { elementsPromise: null, changeTypes: null, affectedCells: null, notebook_number: null };
+  if (checkpoint == null) return { elementsPromise: null, outputsPromise: null, changeTypes: null, affectedCells: null, notebook_number: null };
   const nodeys = checkpoint.targetCells.map(cell => props.history.store.get(cell.cell));
+  const outputNodeys = checkpoint.targetCells.map(cell => {
+    if (!(cell.output?.length > 0)) return undefined;
+    return props.history.store.get(cell.output[0]);
+  });
   const changeTypes = checkpoint.targetCells.map(cell => cell.changeType);
   const affectedCells = checkpoint.targetCells.map(cell => {
     let [, cellNumber,] = cell.cell.split(".");
@@ -29,11 +34,16 @@ const renderDiff = (props: HoverMenuProps, notebook_number: number) => {
   const parentNumber = parentNode?.attributes?.notebook;
   const diffType = parentNode ? DIFF_TYPE.TREE_CHANGE_DIFF : DIFF_TYPE.NO_DIFF;
   const elementsPromise = Promise.all(nodeys.map(nodey => props.history.inspector.diff.renderCell(nodey, diffType, parentNumber)));
-  return { elementsPromise, changeTypes, affectedCells, notebook_number };
+  const outputsPromise = Promise.all(outputNodeys.map(outputNodey => {
+    if (outputNodey == null) return undefined;
+    return props.history.inspector.diff.renderCell(outputNodey, diffType, parentNumber);
+  }));
+  return { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number };
 }
 
 type DiffMenuType = {
   elements: HTMLElement[],
+  outputs: HTMLElement[],
   changeTypes: ChangeType[],
   affectedCells: string[],
   notebook_number: number,
@@ -50,16 +60,16 @@ const HoverMenu = (props: HoverMenuProps) => {
   const [diff, setDiff]: [DiffMenuType, React.Dispatch<DiffMenuType>] = React.useState(undefined);
 
   // Request diff if we do not have one, or we have a diff for a different node
-  if (props.show && props.nodeDatum != null && (diff == null || diff.notebook_number !== props.nodeDatum.attributes.notebook)) {
-    let { elementsPromise, changeTypes, affectedCells, notebook_number } = renderDiff(props, props.nodeDatum.attributes.notebook);
-    elementsPromise?.then(elements => {
-      console.log("Setting notebook", notebook_number);
-      setDiff({ elements, changeTypes, affectedCells, notebook_number });
+  if (props.show && props.nodeDatum != null && props.nodeDatum.name !== "root" && (diff == null || diff.notebook_number !== props.nodeDatum.attributes.notebook)) {
+    let { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number } = renderDiff(props, props.nodeDatum.attributes.notebook);
+    Promise.all([elementsPromise, outputsPromise]).then(([elements, outputs]) => {
+      console.log("Setting notebook", notebook_number, outputs);
+      setDiff({ elements, outputs, changeTypes, affectedCells, notebook_number });
     });
   }
 
   // Render if our props told us to, there is a diff available, and it is the diff for the current node
-  const visible = props.show && props.nodeDatum != null && diff?.notebook_number === props.nodeDatum.attributes.notebook;
+  const visible = props.show && props.nodeDatum != null && (diff?.notebook_number === props.nodeDatum.attributes.notebook || props.nodeDatum.name === "root");
   return (
     <div style={{
       position: "absolute",
@@ -87,10 +97,18 @@ const HoverMenuDiff = (props: { diff: DiffMenuType }) => {
             <div dangerouslySetInnerHTML={{
               __html: element.outerHTML,
             }} />
+            {props.diff.outputs[i] &&
+              <div>
+                <div>Output of cell {props.diff.affectedCells[i]} was changed.</div>
+                <div dangerouslySetInnerHTML={{
+                  __html: props.diff.outputs[i].outerHTML,
+                }} />
+              </div>
+            }
           </div>
         )
       }
-      {props.diff && props.diff.elements.length === 0 &&
+      {props.diff?.elements?.length === 0 &&
         <div>Cell was executed</div>
       }
     </div>)
