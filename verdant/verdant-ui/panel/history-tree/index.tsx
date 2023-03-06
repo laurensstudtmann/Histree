@@ -54,6 +54,7 @@ const foreignObjectProps = { width: nodeSize.x + 5, height: nodeSize.y, x: 18, y
 export interface VerTreeNodeDatum extends RawNodeDatum {
   attributes?: {
     notebook: number,
+    parentNotebook: number,
     changeType: string
   },
 }

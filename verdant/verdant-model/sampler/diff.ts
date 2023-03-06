@@ -148,14 +148,26 @@ export class Diff {
     if (diffKind === DIFF_TYPE.TREE_CHANGE_DIFF) {
       let priorNotebook = this.history.store.getNotebook(relativeToNotebook);
       if (priorNotebook == null) return [undefined, diffKind];
-      const priorCells = priorNotebook.cells.map(name => this.history.store.get(name));
+
       if (nodey instanceof NodeyOutput) {
         console.log("nodeyoutput");
-        return [undefined, diffKind];
+        return [this.getPriorNodeyOutput(relativeToNotebook, cellParent.name), diffKind];
+        /*console.log((cellParent as NodeyCode).content)
+        const checkpoints = this.history.checkpoints.getForNotebook(priorNotebook);
+        let priorNodeys = [];
+        checkpoints.forEach(cp => {
+          cp.targetCells.forEach(cell => {
+            if (cell.cell === cellParent.name) priorNodeys.push(this.history.store.get(cell.output[0]));
+          })
+        })
+        if (priorNodeys.length === 1)
+          return [priorNodeys[0], diffKind];
+        return [undefined, diffKind];*/
         /*let priorParentNodey = cells.find(c => c.artifactName === cellParent.artifactName);
         this.history.store.getOutput(priorParentNodey as NodeyCode).;*/
       }
       else {
+        const priorCells = priorNotebook.cells.map(name => this.history.store.get(name));
         priorNodey = priorCells.find(c => c.artifactName === nodey.artifactName);
       }
     }
@@ -197,6 +209,23 @@ export class Diff {
     }
 
     return [priorNodey, diffKind];
+  }
+
+  private getPriorNodeyOutput(notebook_number: number, cellParentName: string): NodeyOutput {
+    // Notebook with version notebook_number is included, so notebook_number is the most recent notebook that would be a candidate
+    while (notebook_number != null) {
+      let priorNotebook = this.history.store.getNotebook(notebook_number)
+      const checkpoints = this.history.checkpoints.getForNotebook(priorNotebook);
+      for (const cp of checkpoints) {
+        for (const cell of cp.targetCells) {
+          const [targetType, targetID, ] = cell.cell.split(".");
+          const [parentType, parentID, ] = cellParentName.split(".");
+          if (targetType === parentType && targetID === parentID)
+            return (cell.output != null) ? this.history.store.get(cell.output[0]) as NodeyOutput : undefined;
+        }
+      }
+      notebook_number = this.history.store.getParentNotebookIndex(notebook_number);
+    }
   }
 
   private diffCode(

@@ -30,6 +30,7 @@ export class HistoryStore {
   readonly history: History;
 
   private _historyTree: VerTreeNodeDatum = { name: "root", children: [] };  // root node of the history tree (including all the children)
+  private _nodeLookup: VerTreeNodeDatum[] = [];                         // A map from the notebook index to the reference of the node
   public currentNotebookIndex: number;                                  // Index of the notebook version that is currently selected and shown
   public currentNode: VerTreeNodeDatum = this._historyTree;                 // Node we are currently at in the tree
 
@@ -174,22 +175,25 @@ export class HistoryStore {
   }
 
   public appendNodeToTree(checkpoint: Checkpoint, changeType: string) {
+    const parent = (this.currentNode.attributes != null) ? this.currentNode.attributes.notebook : undefined;
     let nextNode = { 
       name: checkpoint.notebook.toString() + " " + changeType,
-      attributes: { notebook: checkpoint.notebook, changeType },
+      attributes: { notebook: checkpoint.notebook, parentNotebook: parent, changeType },
       children: []
     };
+    this._nodeLookup[checkpoint.notebook] = nextNode;
     this.currentNode.children.push(nextNode);
     this.currentNode = nextNode;
   }
 
   public setCurrentNodeDatum(node: RawNodeDatum) {
     // Need to perform search through the history tree to get the proper reference to this node
-    let resNode = this.tree_DFS(this._historyTree, node.attributes.notebook as number);
-    if (resNode != null) this.currentNode = resNode as VerTreeNodeDatum;
+    // let resNode = this.tree_DFS(this._historyTree, node.attributes.notebook as number);
+    let resNode = this._nodeLookup[node.attributes.notebook as number]
+    if (resNode != null) this.currentNode = resNode;
   }
   
-  private tree_DFS(subtree: RawNodeDatum, notebook_number: number) {
+  /*private tree_DFS(subtree: RawNodeDatum, notebook_number: number) {
     if (notebook_number === subtree.attributes?.notebook) return subtree;
     let res: RawNodeDatum;
     let i = 0;
@@ -198,11 +202,19 @@ export class HistoryStore {
       i++;
     }
     return res;
+  }*/
+  public getParentNotebookIndex(index: number) {
+    return this._nodeLookup[index].attributes.parentNotebook;
   }
-
   public getParentNode(node: RawNodeDatum) {
-    return this.getParent_DFS(this._historyTree, node.attributes.notebook as number);
+    if (node.attributes.parentNotebook != null)
+      return this._nodeLookup[node.attributes.parentNotebook as number];
+    console.log("Falling back to DFS due to outdated history file");
+    return this.getParent_DFS(this._historyTree, node.attributes.notebook as number) as VerTreeNodeDatum;
   }
+  /*public getParentNode(node: RawNodeDatum) {
+    return this.getParent_DFS(this._historyTree, node.attributes.notebook as number);
+  }*/
 
   private getParent_DFS(subtree: RawNodeDatum, notebook_number: number) {
     // if (notebook_number === subtree.attributes?.notebook) return subtree;
@@ -412,12 +424,19 @@ export class HistoryStore {
       0 // all notebooks have an id of 0, it's a singleton
     );
     this._historyTree = data.historyTree;
+    // DFS to put references to all nodes into a map for easier access:
+    this.mapAllNodeReferences(this._historyTree);
     this.currentNotebookIndex = data.currentNotebookIndex;
-    this.currentNode = this.findNodeByIndex(this._historyTree, this.currentNotebookIndex);
+    this.currentNode = this._nodeLookup[this.currentNotebookIndex]; //this.findNodeByIndex(this._historyTree, this.currentNotebookIndex);
+  }
+
+  private mapAllNodeReferences(tree: VerTreeNodeDatum) {
+    this._nodeLookup[tree.attributes?.notebook] = tree;
+    tree.children?.forEach(c => this.mapAllNodeReferences(c as VerTreeNodeDatum));
   }
 
   // DFS of history tree to get a particular node
-  private findNodeByIndex(tree: VerTreeNodeDatum, index: number): VerTreeNodeDatum {
+  /*private findNodeByIndex(tree: VerTreeNodeDatum, index: number): VerTreeNodeDatum {
     if (tree.attributes && tree.attributes.notebook === index)
       return tree;
     let res: VerTreeNodeDatum;
@@ -426,7 +445,7 @@ export class HistoryStore {
       if (res != null) return res;
     }
     return null;
-  }
+  }*/
 
   /*
    * Returns the equivalent of toJSON() for a slice of history
