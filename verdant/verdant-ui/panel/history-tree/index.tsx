@@ -6,7 +6,7 @@ import Tree from 'react-d3-tree';
 import { RawNodeDatum, TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/ghost-to-ipynb";
 import { log } from "../../../verdant-model/notebook";
-import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon } from "../../../verdant-ui/icons";
+import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon, DeleteIcon } from "../../../verdant-ui/icons";
 import HoverMenu from "./hover-menu";
 import ReactDOM from "react-dom";
 import { HierarchyPointNode } from 'd3-hierarchy';
@@ -23,6 +23,17 @@ const renderIcon = (changeType: string) => {
     return <MoveIcon></MoveIcon>
   else if (changeType === "changeCellType")
     return <SwapIcon></SwapIcon>
+  else if (changeType === "delete")
+    return <DeleteIcon></DeleteIcon>
+}
+
+const getNodeColor = (changeType: string) => {
+  if (changeType === "add")
+    return "#43A047";
+  else if (changeType === "delete")
+    return "#FF5722";
+  else
+    return "#1E88E5"
 }
 
 /*const makeTreeData = (checkpoints: Checkpoint[]) => {
@@ -88,7 +99,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
             nodeDatum={this.state.hoverNodeDatum}
             history={this.props.history} />,
           document.body)}
-        <div>{"asdf" + this.props.currentNodeName}</div>
+        {/* <div>{"asdf" + this.props.currentNodeName}</div> */}
         {/* <img src={playCustom} /> */}
         <Tree data={this.props.treeData}
           rootNodeClassName="node__all"
@@ -120,11 +131,11 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       onClick={onNodeClick}
       onMouseEnter={(event) => this.handleMouseEnter(event, nodeDatum)}
       onMouseLeave={() => this.handleMouseLeave(nodeDatum)}>
-      <circle r={15} fill={nodeDatum.attributes.changeType === "add" ? "#43A047" : "#1E88E5"} stroke="none">
+      <circle r={15} fill={getNodeColor(nodeDatum.attributes.changeType)} stroke="none">
       </circle>
       {renderIcon(nodeDatum.attributes.changeType)}
       {nodeDatum.attributes.notebook === this.currentNotebookIndex && (
-        <circle r={20} fill="none" stroke={nodeDatum.attributes.changeType === "add" ? "#43A047" : "#1E88E5"} strokeWidth="3px" />
+        <circle r={20} fill="none" stroke={getNodeColor(nodeDatum.attributes.changeType)} strokeWidth="3px" />
       )}
       {/* `foreignObject` requires width & height to be explicitly set. */}
       {false && (

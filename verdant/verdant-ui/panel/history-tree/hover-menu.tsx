@@ -81,7 +81,7 @@ const HoverMenu = (props: HoverMenuProps) => {
       visibility: visible ? 'visible' : 'hidden'
 
     }} className="hover-menu-container" >
-      {props.nodeDatum?.name}
+      {/* {props.nodeDatum?.name} */}
       <HoverMenuDiff diff={diff} />
     </div >
   );
