@@ -21,6 +21,7 @@ import {
   SwitchCellType,
   RunCell,
 } from "../notebook-events";
+//import { getUsedPackages } from "../../verdant-ui/panel/history-tree/get-package-info";
 
 export class NotebookListen {
   public activeCell: Cell | null = null;
@@ -190,6 +191,8 @@ export class NotebookListen {
       );
       this.verNotebook.handleNotebookEvent(createCellEvent);
     });
+
+    //getUsedPackages(this._notebookPanel)
   }
 
   private _removeCells(oldIndex: number, oldValues: ICellModel[]) {
