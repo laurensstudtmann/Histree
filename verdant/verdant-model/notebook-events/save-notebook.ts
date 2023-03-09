@@ -1,7 +1,13 @@
 import { NotebookEvent } from ".";
-import { log } from "../notebook";
+import { log, VerNotebook } from "../notebook";
 
 export class SaveNotebook extends NotebookEvent {
+  actuallySave: Boolean
+
+  constructor(notebook: VerNotebook, actuallySave: Boolean = true) {
+    super(notebook);
+    this.actuallySave = actuallySave;  
+  }
   async modelUpdate() {
     console.log(this.checkpoint);
     // look through cells for potential unsaved changes
@@ -16,16 +22,17 @@ export class SaveNotebook extends NotebookEvent {
     this.checkpoint = await this.history.stage.commit(this.checkpoint, {
       ignore_output: true,
     });
-    
+    if (!this.actuallySave) log("NOT ACTUALLY SAVING");
+    else log ("ACTUALLY SAVING");
     if (this.checkpoint.notebook == null) log("Notebook saved, no changes, no node added.");
     else {
       log("Notebook saved with changes, adding node");
       this.history.store.appendNodeToTree(this.checkpoint, "save");
-
     }
   }
 
   endEvent() {
-    this.notebook.saveToFile();
+    if (this.actuallySave)
+      this.notebook.saveToFile();
   }
 }

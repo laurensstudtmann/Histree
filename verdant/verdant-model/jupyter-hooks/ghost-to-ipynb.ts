@@ -11,6 +11,7 @@ import { CodeCellModel, ICellModel } from "@jupyterlab/cells";
 import { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { VerCell } from "../cell";
 import { IObservableUndoableList } from "@jupyterlab/observables";
+import { SaveNotebook } from "../notebook-events";
 // import { VerTreeNodeDatum } from "verdant/verdant-ui/panel/history-tree";
 
 const ENABLE_CORRECTNESS_CHECK = false;
@@ -20,6 +21,9 @@ export namespace GhostToNotebookConverter {
     let start = new Date().getTime();
     const ver_notebook = history.notebook;
     if (!ver_notebook.canListen) return;  // Switch is already in progress, do not switch again
+
+    let saveEvent = new SaveNotebook(ver_notebook, false);
+    await ver_notebook.handleNotebookEvent(saveEvent);
 
     // first match language of notebook
     let metadata = ver_notebook.metadata;
