@@ -19,9 +19,11 @@ const ENABLE_CORRECTNESS_CHECK = false;
 export namespace GhostToNotebookConverter {
   export async function convert(history: History, notebook: NodeyNotebook, createNewModel: Boolean = true, clickedNode: RawNodeDatum = undefined) {
     let start = new Date().getTime();
+
     const ver_notebook = history.notebook;
     if (!ver_notebook.canListen) return;  // Switch is already in progress, do not switch again
 
+    // Save dangling changes if necessary. Does not perform save to disk
     let saveEvent = new SaveNotebook(ver_notebook, false);
     await ver_notebook.handleNotebookEvent(saveEvent);
 

@@ -10,6 +10,7 @@ import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon, DeleteIcon } from "..
 import HoverMenu from "./hover-menu";
 import ReactDOM from "react-dom";
 import { HierarchyPointNode } from 'd3-hierarchy';
+import BottomMessage from "./bottom-message";
 
 
 const renderIcon = (changeType: string) => {
@@ -76,13 +77,15 @@ type TreeTab_State = {
   hoverX: number,
   hoverY: number,
   hoverNodeDatum: VerTreeNodeDatum,
+  showMessage: Boolean,
+  messageText: string,
 }
 class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   currentNotebookIndex: number
 
   constructor(props: TreeTab_Props) {
     super(props);
-    this.state = { showHoverMenu: false, hoverX: 100, hoverY: 100, hoverNodeDatum: null };
+    this.state = { showHoverMenu: false, hoverX: 100, hoverY: 100, hoverNodeDatum: null, showMessage: false, messageText: undefined };
   }
 
   render() {
@@ -112,6 +115,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           renderCustomNodeElement={(rd3tProps) => this.renderForeignObjectNode({ ...rd3tProps, foreignObjectProps })}
           onNodeClick={(node) => this.handleNodeClick(node)}
         />
+        <BottomMessage message={this.state.messageText} show={this.state.showMessage} setShow={(val) => this.setState({ showMessage: val })}></BottomMessage>
       </div>
     );
   }
@@ -147,6 +151,12 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   }
 
   handleNodeClick(node: HierarchyPointNode<TreeNodeDatum>) {
+    const kernel = this.props.history.notebook.view.panel.sessionContext.session.kernel;
+    if (kernel.status === "busy") {
+      console.log("HISTORY TREE: KERNEL BUSY");
+      this.setState({ showMessage: true, messageText: "Cannot switch checkpoints because the kernel is busy!" });
+      return;
+    }
     let nodeDatum: TreeNodeDatum = node.data;
     if (nodeDatum.attributes == null || nodeDatum.attributes.notebook == null) {
       console.log("vernotebook cells", this.props.history.notebook.cells, this.props.history.notebook.cells.map(c => c.modelName));
