@@ -62,10 +62,12 @@ const HoverMenu = (props: HoverMenuProps) => {
   // Request diff if we do not have one, or we have a diff for a different node
   if (props.show && props.nodeDatum != null && props.nodeDatum.name !== "root" && (diff == null || diff.notebook_number !== props.nodeDatum.attributes.notebook)) {
     let { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number } = renderDiff(props, props.nodeDatum.attributes.notebook);
-    Promise.all([elementsPromise, outputsPromise]).then(([elements, outputs]) => {
-      console.log("Setting notebook", notebook_number, outputs);
-      setDiff({ elements, outputs, changeTypes, affectedCells, notebook_number });
-    });
+    if (elementsPromise != null) {
+      Promise.all([elementsPromise, outputsPromise]).then(([elements, outputs]) => {
+        console.log("Setting notebook", notebook_number, outputs);
+        setDiff({ elements, outputs, changeTypes, affectedCells, notebook_number });
+      });
+    }
   }
 
   // Render if our props told us to, there is a diff available, and it is the diff for the current node
