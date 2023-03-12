@@ -44,9 +44,6 @@ export class Commit {
   }
 
   public addCell(added: NodeyCell, index: number) {
-    // first see if this commit can be combined with a prior one
-    const merged = this.attemptMergeWithPriorCheckpoint([added], [index]);
-
     // add cell is an event that changes notebook version
     if (!this.notebook) this.createNotebookVersion();
 
@@ -68,15 +65,12 @@ export class Commit {
     this.checkpoint.targetCells.push(cellDat);
 
     // record checkpoint
-    if (!merged) this.history.checkpoints.add(this.checkpoint);
+    this.history.checkpoints.add(this.checkpoint);
   }
 
   public deleteCell(deleted: NodeyCell) {
     let oldNotebook = this.history.store.currentNotebook;
     let index = oldNotebook?.cells?.indexOf(deleted?.name) || -1;
-
-    // first see if this commit can be combined with a prior one
-    const merged = this.attemptMergeWithPriorCheckpoint([deleted], [index]);
 
     // delete cell is an event that changes notebook version
     if (!this.notebook) this.createNotebookVersion();
@@ -94,7 +88,7 @@ export class Commit {
     this.checkpoint.targetCells.push(cellDat);
 
     // record checkpoint
-    if (!merged) this.history.checkpoints.add(this.checkpoint);
+    this.history.checkpoints.add(this.checkpoint);
   }
 
   public moveCell(moved: NodeyCell, newPos: number) {
@@ -102,9 +96,6 @@ export class Commit {
     let name = moved.name;
     let oldNotebook = this.history.store.currentNotebook;
     let index = oldNotebook.cells.indexOf(name);
-
-    // first see if this commit can be combined with a prior one
-    const merged = this.attemptMergeWithPriorCheckpoint([moved], [index]);
 
     // moving a cell is an event that changes notebook version
     if (!this.notebook) this.createNotebookVersion();
@@ -122,21 +113,10 @@ export class Commit {
     this.checkpoint.targetCells.push(cellDat);
 
     // record checkpoint
-    if (!merged) this.history.checkpoints.add(this.checkpoint);
+    this.history.checkpoints.add(this.checkpoint);
   }
 
   public changeCellType(oldCell: NodeyCell, newCell: NodeyCell) {
-    // get position
-    let name = oldCell.name;
-    let oldNotebook = this.history.store.currentNotebook;
-    let index = oldNotebook.cells.indexOf(name);
-
-    // first see if this commit can be combined with a prior one
-    const merged = this.attemptMergeWithPriorCheckpoint(
-      [oldCell, newCell],
-      [index]
-    );
-
     // changing a cell type is an event that changes notebook version
     if (!this.notebook) this.createNotebookVersion();
 
@@ -157,7 +137,7 @@ export class Commit {
     this.checkpoint.targetCells.push(cellDat);
 
     // record checkpoint
-    if (!merged) this.history.checkpoints.add(this.checkpoint);
+    this.history.checkpoints.add(this.checkpoint);
   }
 
   // returns true if there are changes such that a new commit is recorded
@@ -173,7 +153,7 @@ export class Commit {
       });
 
       // first see if this commit can be combined with a prior one
-      const merged = this.attemptMergeWithPriorCheckpoint(allStaged, indices);
+      const merged = this.attemptMergeWithPriorCheckpoint(allStaged, indices, options);
 
       // if there are real edits, make sure we have a new notebook
       if (!this.notebook) this.createNotebookVersion();
@@ -212,7 +192,8 @@ export class Commit {
 
   private attemptMergeWithPriorCheckpoint(
     targetedCells: Nodey[],
-    indicies: number[]
+    indicies: number[],
+    options: jsn = {},
   ): boolean {
     /*
      * We will try to add new changes to an existing notebook version if
@@ -224,13 +205,27 @@ export class Commit {
      * The goal of this merge is to compress the number of overall notebook versions so
      * that there is less sparse information to shift through, and more meaty versions.
      */
+
+    // Only attempt to merge checkpoints where a cell has been run without any other edits
+    if (!options["isRunCell"] || !this.stage.onlyExecuted()) return false;
+
+    // This checkpoint satisfies these conditions
+    this.checkpoint.isOnlyExecuted = true;
+
+    // Do not allow merging with checkpoints whose nodes have child nodes so that we do not rewrite history
+    if (this.history.store.currentNode.children.length > 0) return false;
+
+    // Mark this 
     let pass = false;
     let oldNotebook = this.history.store.currentNotebook;
     let oldCheckpoints = this.history.checkpoints.getForNotebook(oldNotebook);
     if (oldCheckpoints.length > 0) {
       let latestCheckpoint = oldCheckpoints[oldCheckpoints.length - 1];
-      // check that the latest checkpoint is within 5 min of this one
-      pass = checkTimeDiff(latestCheckpoint, this.checkpoint);
+      
+      // Previous checkpoint must also satisfy the onlyExecuted condition
+      if (!latestCheckpoint.isOnlyExecuted) return false;
+
+      pass = true;
 
       // check that the older checkpoint does not affect the same cells as this one
       if (pass) {
@@ -255,6 +250,7 @@ export class Commit {
       if (pass) {
         this.notebook = oldNotebook;
         this.checkpoint = latestCheckpoint;
+        this.checkpoint.mergeCount++;
       }
     }
 
@@ -350,7 +346,14 @@ export class Commit {
     let nodeyHistory = this.history.store.getHistoryOf(
       artifactName
     ) as CodeHistory;
-    let oldNodey = nodeyHistory?.latest;
+    
+    const [targetType, targetID] = artifactName.split(".");
+    const oldCell = this.history.store.currentNotebook.cells.find(c => {
+      const [compareType, compareID, ] = c.split(".");
+      return targetType === compareType && targetID === compareID;
+    });
+    let oldVer = parseInt(oldCell.split(".")[2]);
+    let oldNodey = nodeyHistory.getVersion(oldVer);
     let newNodey;
 
     // error case only
@@ -422,12 +425,6 @@ export class Commit {
     // finally return updated new version
     return newNodey;
   }
-}
-
-// helper functions
-function checkTimeDiff(A: Checkpoint, B: Checkpoint): boolean {
-  let minutes_elapsed = Math.abs(A.timestamp - B.timestamp) / 1000 / 60;
-  return minutes_elapsed < 0;
 }
 
 function checkArtfiactOverlap(targets_A, targets_B): boolean {

@@ -90,6 +90,17 @@ export class Stage {
     return codeCells.length + markdownCells.length + rawCells.length > 0;
   }
 
+  // Only allowed change is execution of a cell where the code did not change
+  public onlyExecuted() {
+    let markdownCells = Object.keys(this.staged_markdown);
+    let rawCells = Object.keys(this.staged_rawCell);
+
+    // If a staged codecells contains the "literal" key, its code was edited, so we return false
+    const codeChanged = Object.keys(this.staged_codeCell).some(artifactName => "literal" in this.staged_codeCell[artifactName]);
+
+    return markdownCells.length + rawCells.length === 0 && !codeChanged;
+  }
+
   private checkCodeCellNodey(nodey: NodeyCodeCell) {
     let cell = this.history.notebook.getCellByNode(nodey);
     let newText = cell?.getText() || "";

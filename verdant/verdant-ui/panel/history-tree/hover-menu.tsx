@@ -38,7 +38,7 @@ const renderDiff = (props: HoverMenuProps, notebook_number: number) => {
     if (outputNodey == null) return undefined;
     return props.history.inspector.diff.renderCell(outputNodey, diffType, parentNumber);
   }));
-  return { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number };
+  return { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number, mergeCount: checkpoint.mergeCount };
 }
 
 type DiffMenuType = {
@@ -47,6 +47,7 @@ type DiffMenuType = {
   changeTypes: ChangeType[],
   affectedCells: string[],
   notebook_number: number,
+  mergeCount: number,
 }
 type HoverMenuProps = {
   show: boolean,
@@ -60,12 +61,22 @@ const HoverMenu = (props: HoverMenuProps) => {
   const [diff, setDiff]: [DiffMenuType, React.Dispatch<DiffMenuType>] = React.useState(undefined);
 
   // Request diff if we do not have one, or we have a diff for a different node
-  if (props.show && props.nodeDatum != null && props.nodeDatum.name !== "root" && (diff == null || diff.notebook_number !== props.nodeDatum.attributes.notebook)) {
-    let { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number } = renderDiff(props, props.nodeDatum.attributes.notebook);
+  let shouldRequestDiff =
+    props.show &&
+    props.nodeDatum != null &&
+    props.nodeDatum.name !== "root" &&
+    (
+      diff == null ||
+      diff.notebook_number !== props.nodeDatum.attributes.notebook ||
+      diff.mergeCount !== props.history.checkpoints.all()[props.nodeDatum.attributes.notebook].mergeCount
+    )
+
+  if (shouldRequestDiff) {
+    let { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number, mergeCount } = renderDiff(props, props.nodeDatum.attributes.notebook);
     if (elementsPromise != null) {
       Promise.all([elementsPromise, outputsPromise]).then(([elements, outputs]) => {
         console.log("Setting notebook", notebook_number, outputs);
-        setDiff({ elements, outputs, changeTypes, affectedCells, notebook_number });
+        setDiff({ elements, outputs, changeTypes, affectedCells, notebook_number, mergeCount });
       });
     }
   }

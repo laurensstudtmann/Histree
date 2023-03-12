@@ -28,13 +28,13 @@ const renderIcon = (changeType: string) => {
     return <DeleteIcon></DeleteIcon>
 }
 
-const getNodeColor = (changeType: string) => {
+const getNodeColor = (changeType: string, darken: boolean = false) => {
   if (changeType === "add")
     return "#43A047";
   else if (changeType === "delete")
     return "#FF5722";
   else
-    return "#1E88E5"
+    return darken ? "#1565C0" : "#1E88E5";
 }
 
 /*const makeTreeData = (checkpoints: Checkpoint[]) => {
@@ -130,16 +130,25 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     toggleNode,
     foreignObjectProps,
   }) {
+    const fillColor = getNodeColor(nodeDatum.attributes.changeType);
+    const darkFillColor = getNodeColor(nodeDatum.attributes.changeType, true);
+    const execCount = nodeDatum.attributes.notebook != null ? this.props.history.checkpoints.all()[nodeDatum.attributes.notebook].mergeCount + 1 : 0;
     return <g pointerEvents="visible"
       onMouseDown={() => console.log("mousedown")}//this.handleMouseLeave(nodeDatum)}
       onClick={onNodeClick}
       onMouseEnter={(event) => this.handleMouseEnter(event, nodeDatum)}
       onMouseLeave={() => this.handleMouseLeave(nodeDatum)}>
-      <circle r={15} fill={getNodeColor(nodeDatum.attributes.changeType)} stroke="none">
+      <circle r={15} fill={fillColor} stroke="none">
       </circle>
       {renderIcon(nodeDatum.attributes.changeType)}
       {nodeDatum.attributes.notebook === this.currentNotebookIndex && (
-        <circle r={20} fill="none" stroke={getNodeColor(nodeDatum.attributes.changeType)} strokeWidth="3px" />
+        <circle r={20} fill="none" stroke={fillColor} strokeWidth="3px" />
+      )}
+      {execCount > 1 && (
+        <>
+          <circle r={10} cx={12} cy={-12} fill={darkFillColor} stroke="none"></circle>
+          <text dx={12} dy={-7.5} textAnchor="middle" fill="#fff" stroke="none" fontSize="14px" fontWeight="bold">{execCount}</text>
+        </>
       )}
       {/* `foreignObject` requires width & height to be explicitly set. */}
       {false && (
