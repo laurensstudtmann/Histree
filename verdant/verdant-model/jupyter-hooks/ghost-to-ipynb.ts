@@ -17,7 +17,7 @@ import { SaveNotebook } from "../notebook-events";
 const ENABLE_CORRECTNESS_CHECK = false;
 
 export namespace GhostToNotebookConverter {
-  export async function convert(history: History, notebook: NodeyNotebook, createNewModel: Boolean = true, clickedNode: RawNodeDatum = undefined) {
+  export async function convert(history: History, notebook: NodeyNotebook, createNewModel: Boolean = true, clickedNode: RawNodeDatum = undefined) {    
     let start = new Date().getTime();
 
     const ver_notebook = history.notebook;
@@ -119,7 +119,7 @@ export namespace GhostToNotebookConverter {
         // create outputs if needed
         let output = history.store.getOutput(cell);
         if (output) {
-          let nodeyOut = output.latest;
+          let nodeyOut = output.getLatestForNotebook(notebook);
           let rawList = await Promise.all(
             nodeyOut.raw.map(async (raw) => {
               if (raw) {
@@ -156,7 +156,7 @@ export namespace GhostToNotebookConverter {
 
     let verCellNames = ver_notebook.cells.map(vc => vc.modelName);  //JSON.parse(JSON.stringify(old_nodeyNotebook.cells));
 
-    await insertICells(notebook.cells, model.cells, verCellNames, generateCell);// ver_notebook.cells.map(vc => vc.modelName), history);  // vc.model.name
+    await insertICells(notebook.cells, model.cells, verCellNames, notebook, generateCell, history);// ver_notebook.cells.map(vc => vc.modelName), history);  // vc.model.name
     if (ENABLE_CORRECTNESS_CHECK) checkICells(iCellModels, model.cells);
 
     let icellsDone = new Date().getTime();
@@ -189,7 +189,14 @@ export namespace GhostToNotebookConverter {
     return model;
   }
 
-  const insertICells = async (sourceCellNames: string[], targetCells: IObservableUndoableList<ICellModel>, verCellNames: string[], generateCellFn: (name: string) => Promise<ICellModel>) => {
+  const insertICells = async (
+    sourceCellNames: string[],
+    targetCells: IObservableUndoableList<ICellModel>,
+    verCellNames: string[],
+    notebook: NodeyNotebook,
+    generateCellFn: (name: string) => Promise<ICellModel>,
+    history: History
+  ) => {
     if (targetCells.length !== verCellNames.length) console.error("targetCells and verCells not equal in length!");
 
     // Generate the cells that will need to be generated because they are not in the current notebook
@@ -199,7 +206,9 @@ export namespace GhostToNotebookConverter {
     for (let i = 0; i < sourceCellNames.length; i++) {
       console.log("sourceCellName", sourceCellNames[i], ", verCellName", verCellNames[i]);
       console.log(generatedCells[i]);
-      if (sourceCellNames[i] === verCellNames[i]) continue;   // Cell at current index is the same as before
+      if (sourceCellNames[i] === verCellNames[i]) {
+        continue;   // Cell at current index is the same as before
+      }
       let vcIndex = verCellNames.findIndex(vc => vc === sourceCellNames[i]);
       if (vcIndex !== -1) {
         console.log("found elsewhere. Moving...");

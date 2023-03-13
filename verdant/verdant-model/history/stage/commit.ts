@@ -347,13 +347,13 @@ export class Commit {
       artifactName
     ) as CodeHistory;
     
-    const [targetType, targetID] = artifactName.split(".");
+    /*const [targetType, targetID] = artifactName.split(".");
     const oldCell = this.history.store.currentNotebook.cells.find(c => {
       const [compareType, compareID, ] = c.split(".");
       return targetType === compareType && targetID === compareID;
     });
-    let oldVer = parseInt(oldCell.split(".")[2]);
-    let oldNodey = nodeyHistory.getVersion(oldVer);
+    let oldVer = parseInt(oldCell.split(".")[2]);*/
+    let oldNodey = nodeyHistory.latest;
     let newNodey;
 
     // error case only

@@ -1,6 +1,7 @@
-import { Nodey } from "../../nodey";
+import { Nodey, NodeyNotebook } from "../../nodey";
 import { OriginPointer } from "./origin-pointer";
 import { log } from "../../notebook";
+import { History } from "../history";
 
 const DEBUG = false;
 
@@ -10,6 +11,11 @@ const DEBUG = false;
 export class NodeHistory<T extends Nodey> {
   originPointer: OriginPointer | null = null;
   protected versions: T[] = [];
+  private history: History;
+
+  constructor(history: History) {
+    this.history = history;
+  }
 
   getAllVersions(): T[] {
     return this.versions.slice(0);
@@ -52,13 +58,80 @@ export class NodeHistory<T extends Nodey> {
       );
   }
 
-  get latest(): T {
-    return this.versions[this.versions.length - 1];
-  }
-
   get length() {
     return this.versions.length;
   }
+
+  get latest(): T {
+    return this.getLatestForNotebook(this.history.store.currentNotebook);
+  }
+
+  getLatestForNotebook(notebook: NodeyNotebook): T {
+    const latestNaive = this.versions[this.versions.length - 1];
+    let typeChar = latestNaive.typeChar;
+    if (!["o", "c", "m", "r"].includes(typeChar)) return latestNaive;  // For notebooks or any other non-cell type
+
+    let id: string;
+    let forOutput = typeChar === "o";
+
+    // Use parent in case of an output nodey
+    if (forOutput) {
+      [typeChar, id,] = latestNaive.parent.split(".");
+    } else {
+      id = latestNaive.id.toString();
+    }
+    let nodey: T;
+    const cellName = notebook.cells.find(c => {
+      const [compareType, compareID,] = c.split(".");
+      return typeChar === compareType && id === compareID;
+    });
+    if (forOutput) {
+      for (let i = this.versions.length - 1; i >= 0; i--) {
+        if (this.versions[i].parent === cellName) {
+          nodey = this.versions[i];
+          break;
+        }
+      }
+    } else {
+      let ver = parseInt(cellName.split(".")[2]);
+      nodey = this.getVersion(ver);
+    }
+    // if (nodey == null) return this.latestNaive;  // Fallback to naive implementation
+    return nodey;
+  }
+
+  /*getLatestFromCurrent(history: History): T {
+    let typeChar = this.latestNaive.typeChar;
+    if (!["o", "c", "m", "r"].includes(typeChar)) return this.latestNaive;  // For notebooks or any other non-cell type
+
+    let id: string;
+    let forOutput = typeChar === "o";
+
+    // Use parent in case of an output nodey
+    if (forOutput) {
+      [typeChar, id,] = this.latestNaive.parent.split(".");
+    } else {
+      id = this.latestNaive.id.toString();
+    }
+    let nodey: T;
+    const cellName = history.store.currentNotebook.cells.find(c => {
+      const [compareType, compareID,] = c.split(".");
+      return typeChar === compareType && id === compareID;
+    });
+    if (forOutput) {
+      for (let i = this.versions.length - 1; i >= 0; i--) {
+        if (this.versions[i].parent === cellName) {
+          nodey = this.versions[i];
+          break;
+        }
+      }
+    } else {
+      let ver = parseInt(cellName.split(".")[2]);
+      nodey = this.getVersion(ver);
+    }
+    // if (nodey == null) return this.latestNaive;  // Fallback to naive implementation
+    return nodey;
+  }*/
 
   addOriginPointer(origin: Nodey) {
     this.originPointer = new OriginPointer(origin);

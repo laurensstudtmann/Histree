@@ -1,6 +1,7 @@
 import { NodeHistory } from "./node-history";
 import { NodeyOutput } from "../../nodey";
 import { FileManager } from "../../jupyter-hooks/file-manager";
+import { History } from "../history";
 import * as nbformat from "@jupyterlab/nbformat";
 
 /*
@@ -16,8 +17,8 @@ import * as nbformat from "@jupyterlab/nbformat";
 export class OutputHistory extends NodeHistory<NodeyOutput> {
   readonly fileManager: FileManager; // needed to read/write output files
 
-  constructor(fileManager: FileManager) {
-    super();
+  constructor(history: History, fileManager: FileManager) {
+    super(history);
     this.fileManager = fileManager;
   }
 

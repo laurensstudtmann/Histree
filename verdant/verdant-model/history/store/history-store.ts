@@ -234,7 +234,7 @@ export class HistoryStore {
       nodey.id = id;
       // if this is the first version
       if (!this._notebookHistory) {
-        this._notebookHistory = new NodeHistory<NodeyNotebook>();
+        this._notebookHistory = new NodeHistory<NodeyNotebook>(this.history);
         this.currentNotebookIndex = 0;  // List of notebook versions is empty at this point, but will be filled with the first element in the next line, so set index to that first element already
       }
       this._notebookHistory.addVersion(nodey);
@@ -295,11 +295,11 @@ export class HistoryStore {
 
   private _makeHistoryFor(nodey: Nodey) {
     if (nodey instanceof NodeyMarkdown || nodey instanceof NodeyRawCell)
-      return new NodeHistory<NodeyCell>();
-    else if (nodey instanceof NodeyCodeCell) return new CodeHistory();
+      return new NodeHistory<NodeyCell>(this.history);
+    else if (nodey instanceof NodeyCodeCell) return new CodeHistory(this.history);
     else if (nodey instanceof NodeyOutput)
-      return new OutputHistory(this.fileManager);
-    else if (nodey instanceof NodeyCode) return new NodeHistory<NodeyCode>();
+      return new OutputHistory(this.history, this.fileManager);
+    else if (nodey instanceof NodeyCode) return new NodeHistory<NodeyCode>(this.history);
   }
 
   public registerTiedNodey(nodey: NodeyCell, forceTie: string): void {
@@ -383,14 +383,14 @@ export class HistoryStore {
   public fromJSON(data: HistoryStore.SERIALIZE) {
     this._codeCellStore = data.codeCells.map(
       (item: CodeHistory.SERIALIZE, id: number) => {
-        let hist = new CodeHistory();
+        let hist = new CodeHistory(this.history);
         hist.fromJSON(item, NodeyCodeCell.fromJSON, id);
         return hist;
       }
     );
     this._markdownStore = data.markdownCells.map(
       (item: NodeHistory.SERIALIZE, id: number) => {
-        let hist = new NodeHistory<NodeyMarkdown>();
+        let hist = new NodeHistory<NodeyMarkdown>(this.history);
         hist.fromJSON(item, NodeyMarkdown.fromJSON, id);
         return hist;
       }
@@ -398,26 +398,26 @@ export class HistoryStore {
     if (data.rawCells)
       this._rawCellStore = data.rawCells.map(
         (item: NodeHistory.SERIALIZE, id: number) => {
-          let hist = new NodeHistory<NodeyRawCell>();
+          let hist = new NodeHistory<NodeyRawCell>(this.history);
           hist.fromJSON(item, NodeyRawCell.fromJSON, id);
           return hist;
         }
       );
     this._snippetStore = data.snippets.map(
       (item: NodeHistory.SERIALIZE, id: number) => {
-        let hist = new NodeHistory<NodeyCode>();
+        let hist = new NodeHistory<NodeyCode>(this.history);
         hist.fromJSON(item, NodeyCode.fromJSON, id);
         return hist;
       }
     );
     this._outputStore = data.output.map(
       (item: NodeHistory.SERIALIZE, id: number) => {
-        let hist = new OutputHistory(this.fileManager);
+        let hist = new OutputHistory(this.history, this.fileManager);
         hist.fromJSON(item, NodeyOutput.fromJSON, id);
         return hist;
       }
     );
-    this._notebookHistory = new NodeHistory<NodeyNotebook>();
+    this._notebookHistory = new NodeHistory<NodeyNotebook>(this.history);
     this._notebookHistory.fromJSON(
       data.notebook,
       NodeyNotebook.fromJSON,

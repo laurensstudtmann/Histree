@@ -67,7 +67,7 @@ export class Stage {
           let nodeyCell;
           if (nodey instanceof NodeyCodeCell) nodeyCell = nodey;
           else nodeyCell = this.history.store.getCellParent(nodey);
-          this.checkCodeCellNodey(nodeyCell);
+          this.checkCodeCellNodey(nodeyCell, options["ignore_output"]);
 
           // HACK see image on-save issue
           if (!options["ignore_output"]) await this.checkOutputNodey(nodeyCell);
@@ -101,13 +101,14 @@ export class Stage {
     return markdownCells.length + rawCells.length === 0 && !codeChanged;
   }
 
-  private checkCodeCellNodey(nodey: NodeyCodeCell) {
+  private checkCodeCellNodey(nodey: NodeyCodeCell, checkIfDifferent: boolean = false) {
     let cell = this.history.notebook.getCellByNode(nodey);
     let newText = cell?.getText() || "";
 
     let oldText = nodey.literal || ""; // assuming no AST level data
 
-    if (oldText !== newText) {
+    // Always stage even if code stayed the same, except when saving the notebook, then do ignore it when code stayed the same
+    if (!checkIfDifferent || oldText !== newText) {
       // store instructions for a new version of nodey in staging
       if (!this.staged_codeCell[nodey.artifactName]) {
         this.staged_codeCell[nodey.artifactName] = { literal: newText };
