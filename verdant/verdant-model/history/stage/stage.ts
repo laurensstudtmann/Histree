@@ -96,7 +96,9 @@ export class Stage {
     let rawCells = Object.keys(this.staged_rawCell);
 
     // If a staged codecells contains the "literal" key, its code was edited, so we return false
-    const codeChanged = Object.keys(this.staged_codeCell).some(artifactName => "literal" in this.staged_codeCell[artifactName]);
+    const codeChanged = Object.keys(this.staged_codeCell).some(artifactName => {
+      return "literal" in this.staged_codeCell[artifactName] && this.staged_codeCell[artifactName].no_changes !== true
+    });
 
     return markdownCells.length + rawCells.length === 0 && !codeChanged;
   }
@@ -115,6 +117,7 @@ export class Stage {
         this.staged_total.push(nodey);
       }
       this.staged_codeCell[nodey.artifactName]["literal"] = newText;
+      this.staged_codeCell[nodey.artifactName]["no_changes"] = oldText === newText;
     }
   }
 
