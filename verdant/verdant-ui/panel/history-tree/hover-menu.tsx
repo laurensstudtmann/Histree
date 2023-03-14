@@ -14,7 +14,6 @@ import { ChangeType } from "../../../verdant-model/checkpoint";
 }*/
 
 const renderDiff = (props: HoverMenuProps, notebook_number: number) => {
-  console.log("creating diff...");
   const notebook = props.nodeDatum.attributes.notebook;
 
   const checkpoint = props.history.checkpoints.all()[notebook];
@@ -57,7 +56,6 @@ type HoverMenuProps = {
   history: History
 }
 const HoverMenu = (props: HoverMenuProps) => {
-  console.log("Rendering Hovermenu...", props.nodeDatum?.attributes.notebook);
   const [diff, setDiff]: [DiffMenuType, React.Dispatch<DiffMenuType>] = React.useState(undefined);
 
   // Request diff if we do not have one, or we have a diff for a different node
@@ -75,7 +73,6 @@ const HoverMenu = (props: HoverMenuProps) => {
     let { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number, mergeCount } = renderDiff(props, props.nodeDatum.attributes.notebook);
     if (elementsPromise != null) {
       Promise.all([elementsPromise, outputsPromise]).then(([elements, outputs]) => {
-        console.log("Setting notebook", notebook_number, outputs);
         setDiff({ elements, outputs, changeTypes, affectedCells, notebook_number, mergeCount });
       });
     }

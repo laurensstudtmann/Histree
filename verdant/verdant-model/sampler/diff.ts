@@ -150,21 +150,7 @@ export class Diff {
       if (priorNotebook == null) return [undefined, diffKind];
 
       if (nodey instanceof NodeyOutput) {
-        console.log("nodeyoutput");
         return [this.getPriorNodeyOutput(relativeToNotebook, cellParent.name), diffKind];
-        /*console.log((cellParent as NodeyCode).content)
-        const checkpoints = this.history.checkpoints.getForNotebook(priorNotebook);
-        let priorNodeys = [];
-        checkpoints.forEach(cp => {
-          cp.targetCells.forEach(cell => {
-            if (cell.cell === cellParent.name) priorNodeys.push(this.history.store.get(cell.output[0]));
-          })
-        })
-        if (priorNodeys.length === 1)
-          return [priorNodeys[0], diffKind];
-        return [undefined, diffKind];*/
-        /*let priorParentNodey = cells.find(c => c.artifactName === cellParent.artifactName);
-        this.history.store.getOutput(priorParentNodey as NodeyCode).;*/
       }
       else {
         const priorCells = priorNotebook.cells.map(name => this.history.store.get(name));
@@ -451,9 +437,6 @@ export class Diff {
         });
       }
     });
-
-    //console.log("CURRENT DIFF CELL MAP", cellMap);
-
     return cellMap;
   }
 }

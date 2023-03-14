@@ -79,20 +79,26 @@ type TreeTab_State = {
   hoverNodeDatum: VerTreeNodeDatum,
   showMessage: Boolean,
   messageText: string,
+  containerWidth: number | null,
 }
 class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   currentNotebookIndex: number
+  containerRef: React.RefObject<HTMLDivElement>
 
   constructor(props: TreeTab_Props) {
     super(props);
-    this.state = { showHoverMenu: false, hoverX: 100, hoverY: 100, hoverNodeDatum: null, showMessage: false, messageText: undefined };
+    this.containerRef = React.createRef();
+    this.state = { showHoverMenu: false, hoverX: 100, hoverY: 100, hoverNodeDatum: null, showMessage: false, messageText: undefined, containerWidth: undefined };
+  }
+
+  componentDidMount(): void {
+    this.setState({ containerWidth: this.containerRef.current?.offsetWidth ?? null })
   }
 
   render() {
     this.currentNotebookIndex = this.props.history.store.currentNotebookIndex;
-    console.log(this.state);
     return (
-      <div className="full-height">
+      <div className="full-height" ref={this.containerRef}>
         <style>{css}</style>
         {ReactDOM.createPortal(
           <HoverMenu
@@ -110,6 +116,8 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           leafNodeClassName="node__all"
           orientation="vertical"
           nodeSize={nodeSize}
+          pathFunc="straight"
+          translate={{ x: this.state.containerWidth ? this.state.containerWidth / 2 : 50, y: 50 }}
           zoom={0.65}
           collapsible={false}
           renderCustomNodeElement={(rd3tProps) => this.renderForeignObjectNode({ ...rd3tProps, foreignObjectProps })}
@@ -134,10 +142,9 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     const darkFillColor = getNodeColor(nodeDatum.attributes.changeType, true);
     const execCount = nodeDatum.attributes.notebook != null ? this.props.history.checkpoints.all()[nodeDatum.attributes.notebook].mergeCount + 1 : 0;
     return <g pointerEvents="visible"
-      onMouseDown={() => console.log("mousedown")}//this.handleMouseLeave(nodeDatum)}
       onClick={onNodeClick}
       onMouseEnter={(event) => this.handleMouseEnter(event, nodeDatum)}
-      onMouseLeave={() => this.handleMouseLeave(nodeDatum)}>
+      onMouseLeave={() => this.handleMouseLeave()}>
       <circle r={15} fill={fillColor} stroke="none">
       </circle>
       {renderIcon(nodeDatum.attributes.changeType)}
@@ -178,10 +185,8 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   handleMouseEnter(event: React.MouseEvent<SVGGElement, MouseEvent>, nodeDatum: VerTreeNodeDatum) {
     let pos = event.currentTarget.getBoundingClientRect();
     this.setState({ hoverX: pos.right, hoverY: pos.top, showHoverMenu: true, hoverNodeDatum: nodeDatum })
-    console.log("enteringg ", nodeDatum.name);
   }
-  handleMouseLeave(nodeDatum: VerTreeNodeDatum) {
-    console.log("leaving ", nodeDatum.name);
+  handleMouseLeave() {
     this.setState({ showHoverMenu: false, hoverNodeDatum: null });
   }
 }
