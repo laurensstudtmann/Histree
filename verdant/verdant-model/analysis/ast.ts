@@ -57,6 +57,7 @@ export class AST {
     checkpoint.notebook = notebook.version;
     checkpoint.targetCells.push(...changedCells);
     this.history.checkpoints.add(checkpoint);
+    this.history.store.appendNodeToTree(checkpoint, "add");
 
     return notebook;
   }
@@ -111,6 +112,7 @@ export class AST {
       // return updated notebook
       checkpoint.targetCells.push(...changedCells);
       this.history.checkpoints.add(checkpoint);
+      this.history.store.appendNodeToTree(checkpoint, "add");
       return newNotebook;
     } else {
       // everything is exactly the same

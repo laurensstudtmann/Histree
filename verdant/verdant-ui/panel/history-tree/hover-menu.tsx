@@ -62,7 +62,6 @@ const HoverMenu = (props: HoverMenuProps) => {
   let shouldRequestDiff =
     props.show &&
     props.nodeDatum != null &&
-    props.nodeDatum.name !== "root" &&
     (
       diff == null ||
       diff.notebook_number !== props.nodeDatum.attributes.notebook ||
@@ -79,7 +78,7 @@ const HoverMenu = (props: HoverMenuProps) => {
   }
 
   // Render if our props told us to, there is a diff available, and it is the diff for the current node
-  const visible = props.show && props.nodeDatum != null && (diff?.notebook_number === props.nodeDatum.attributes.notebook || props.nodeDatum.name === "root");
+  const visible = props.show && props.nodeDatum != null && (diff?.notebook_number === props.nodeDatum.attributes.notebook);
   return (
     <div style={{
       position: "absolute",

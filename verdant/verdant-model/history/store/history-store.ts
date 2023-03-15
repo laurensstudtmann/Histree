@@ -29,7 +29,7 @@ export class HistoryStore {
   readonly fileManager: FileManager;
   readonly history: History;
 
-  private _historyTree: VerTreeNodeDatum = { name: "root", children: [] };  // root node of the history tree (including all the children)
+  private _historyTree: VerTreeNodeDatum = undefined; //{ name: "root", children: [] };  // root node of the history tree (including all the children)
   private _nodeLookup: VerTreeNodeDatum[] = [];                         // A map from the notebook index to the reference of the node
   public currentNotebookIndex: number;                                  // Index of the notebook version that is currently selected and shown
   public currentNode: VerTreeNodeDatum = this._historyTree;                 // Node we are currently at in the tree
@@ -175,14 +175,15 @@ export class HistoryStore {
   }
 
   public appendNodeToTree(checkpoint: Checkpoint, changeType: string) {
-    const parent = (this.currentNode.attributes != null) ? this.currentNode.attributes.notebook : undefined;
+    const parent = this.currentNode?.attributes?.notebook;
     let nextNode = { 
       name: checkpoint.notebook.toString() + " " + changeType,
       attributes: { notebook: checkpoint.notebook, parentNotebook: parent, changeType },
       children: []
     };
     this._nodeLookup[checkpoint.notebook] = nextNode;
-    this.currentNode.children.push(nextNode);
+    if (this._historyTree == null) this._historyTree = nextNode;
+    if (this.currentNode != null) this.currentNode.children.push(nextNode);
     this.currentNode = nextNode;
   }
 
@@ -209,6 +210,10 @@ export class HistoryStore {
   public getParentNode(node: RawNodeDatum) {
     if (node.attributes.parentNotebook != null)
       return this._nodeLookup[node.attributes.parentNotebook as number];
+    if (node.name === this._historyTree.name) {
+      console.log("root!");
+      return undefined;  // node is the root node
+    }
     console.log("Falling back to DFS due to outdated history file");
     return this.getParent_DFS(this._historyTree, node.attributes.notebook as number) as VerTreeNodeDatum;
   }
@@ -236,6 +241,7 @@ export class HistoryStore {
       if (!this._notebookHistory) {
         this._notebookHistory = new NodeHistory<NodeyNotebook>(this.history);
         this.currentNotebookIndex = 0;  // List of notebook versions is empty at this point, but will be filled with the first element in the next line, so set index to that first element already
+        console.log(this.history.checkpoints.all());
       }
       this._notebookHistory.addVersion(nodey);
     } else {
