@@ -2,7 +2,7 @@ import { connect, ConnectedProps } from "react-redux";
 import * as React from "react";
 import { verdantState } from "verdant/verdant-ui/redux";
 // import { Checkpoint } from "verdant/verdant-model/checkpoint";
-import Tree from 'react-d3-tree';
+// import Tree from 'react-d3-tree';
 import { RawNodeDatum, TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/ghost-to-ipynb";
 import { log } from "../../../verdant-model/notebook";
@@ -11,6 +11,7 @@ import HoverMenu from "./hover-menu";
 import ReactDOM from "react-dom";
 import { HierarchyPointNode } from 'd3-hierarchy';
 import BottomMessage from "./bottom-message";
+import VerdantCustomTree from "./verdant-custom-tree";
 
 
 const renderIcon = (changeType: string) => {
@@ -110,7 +111,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           document.body)}
         {/* <div>{"asdf" + this.props.currentNodeName}</div> */}
         {/* <img src={playCustom} /> */}
-        <Tree data={this.props.treeData}
+        <VerdantCustomTree data={this.props.treeData}
           rootNodeClassName="node__all"
           branchNodeClassName="node__all"
           leafNodeClassName="node__all"
@@ -119,7 +120,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           pathFunc="straight"
           translate={{ x: this.state.containerWidth ? this.state.containerWidth / 2 : 50, y: 50 }}
           zoom={0.65}
-          collapsible={false}
+          collapsible={true}
           renderCustomNodeElement={(rd3tProps) => this.renderForeignObjectNode({ ...rd3tProps, foreignObjectProps })}
           onNodeClick={(node) => this.handleNodeClick(node)}
         />
@@ -143,6 +144,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     const execCount = nodeDatum.attributes.notebook != null ? this.props.history.checkpoints.all()[nodeDatum.attributes.notebook].mergeCount + 1 : 0;
     return <g pointerEvents="visible"
       onClick={onNodeClick}
+      onContextMenu={(event) => this.handleContextMenu(event, nodeDatum, toggleNode)}
       onMouseEnter={(event) => this.handleMouseEnter(event, nodeDatum)}
       onMouseLeave={() => this.handleMouseLeave()}>
       <circle r={15} fill={fillColor} stroke="none">
@@ -180,6 +182,12 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     }
     GhostToNotebookConverter.convert(this.props.history, this.props.history.store.getNotebook(nodeDatum.attributes.notebook as number), false, nodeDatum)
       .then(this.props.switchCheckpoint);
+  }
+
+  handleContextMenu(event: React.MouseEvent, node: TreeNodeDatum, toggleNode: () => void) {
+    event.preventDefault();   // Do not show normal context menu
+    toggleNode();
+    console.log("context menu", node.name);
   }
 
   handleMouseEnter(event: React.MouseEvent<SVGGElement, MouseEvent>, nodeDatum: VerTreeNodeDatum) {
