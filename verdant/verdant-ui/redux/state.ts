@@ -31,6 +31,7 @@ const SWITCH_TAB = "SWITCH_TAB";
 const INSPECT_TARGET = "INSPECT_TARGET";
 const GOTO_EVENT = "GOTO_EVENT";
 const SWITCH_CHECKPOINT = "SWITCH_CHECKPOINT";
+const TOGGLE_NODE_COLLAPSED = "TOGGLE_NODE_COLLAPSED";
 
 export const setGhostOpener = (fun: (notebook: number) => void) => {
   return {
@@ -94,6 +95,9 @@ export const verdantReducer = (state: verdantState, action: any) => {
   console.log(action.type);
   console.log("eventView in reducer:", state.eventView);
   switch (action.type) {
+    case TOGGLE_NODE_COLLAPSED:
+      // Do not actually do anything, only update the reference
+      return { ...state };
     case SET_GHOST_OPENER:
       return { ...state, openGhostBook: action.fun };
     case SWITCH_TAB:

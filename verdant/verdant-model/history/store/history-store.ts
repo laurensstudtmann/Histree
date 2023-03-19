@@ -179,7 +179,8 @@ export class HistoryStore {
     let nextNode = { 
       name: checkpoint.notebook.toString() + " " + changeType,
       attributes: { notebook: checkpoint.notebook, parentNotebook: parent, changeType },
-      children: []
+      children: [],
+      __rd3t: { id: null, depth: null, collapsed: false },
     };
     this._nodeLookup[checkpoint.notebook] = nextNode;
     if (this._historyTree == null) this._historyTree = nextNode;
@@ -193,20 +194,15 @@ export class HistoryStore {
     let resNode = this._nodeLookup[node.attributes.notebook as number]
     if (resNode != null) this.currentNode = resNode;
   }
-  
-  /*private tree_DFS(subtree: RawNodeDatum, notebook_number: number) {
-    if (notebook_number === subtree.attributes?.notebook) return subtree;
-    let res: RawNodeDatum;
-    let i = 0;
-    while (res == null && i < subtree.children.length) {
-      res = this.tree_DFS(subtree.children[i], notebook_number);
-      i++;
-    }
-    return res;
-  }*/
+
+  public getNodeByNotebookIndex(index: number) {
+    return this._nodeLookup[index];
+  }
+
   public getParentNotebookIndex(index: number) {
     return this._nodeLookup[index].attributes.parentNotebook;
   }
+
   public getParentNode(node: RawNodeDatum) {
     if (node.attributes.parentNotebook != null)
       return this._nodeLookup[node.attributes.parentNotebook as number];
@@ -217,9 +213,6 @@ export class HistoryStore {
     console.log("Falling back to DFS due to outdated history file");
     return this.getParent_DFS(this._historyTree, node.attributes.notebook as number) as VerTreeNodeDatum;
   }
-  /*public getParentNode(node: RawNodeDatum) {
-    return this.getParent_DFS(this._historyTree, node.attributes.notebook as number);
-  }*/
 
   private getParent_DFS(subtree: RawNodeDatum, notebook_number: number) {
     // if (notebook_number === subtree.attributes?.notebook) return subtree;
