@@ -19,8 +19,10 @@ export class RunCell extends NotebookEvent {
       // If notebook is null, we have executed something that does not change anything.
       // => Do not add a node to the tree
       // If this checkpoint was merged, also don't add a node to the tree
-      if (this.checkpoint.notebook != null && this.checkpoint.mergeCount === 0)
+      if (this.checkpoint.notebook != null && this.checkpoint.mergeCount === 0) {
         this.history.store.appendNodeToTree(this.checkpoint, "execute");
+        this.notebook.view.focusCell(); // Refocus cell to update highlighted nodes
+      }
     }
   }
 }

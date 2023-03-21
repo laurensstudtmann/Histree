@@ -31,5 +31,6 @@ export class MoveCell extends NotebookEvent {
         this.checkpoint
       );
       this.history.store.appendNodeToTree(this.checkpoint, "move");
+      this.notebook.view.focusCell(); // Refocus cell to update highlighted nodes
   }
 }
