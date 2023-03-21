@@ -2,7 +2,7 @@ import { NotebookPanel, Notebook, NotebookActions } from "@jupyterlab/notebook";
 
 import { IObservableJSON } from "@jupyterlab/observables";
 
-import { Cell, CodeCell, MarkdownCell, ICellModel } from "@jupyterlab/cells";
+import { Cell, ICellModel } from "@jupyterlab/cells";
 
 import { PromiseDelegate } from "@lumino/coreutils";
 import { Signal } from "@lumino/signaling";
@@ -84,11 +84,12 @@ export class NotebookListen {
   }
 
   focusCell(cell: Cell | null = this._notebook.activeCell) {
-    if (!cell) return; //cell was just deleted
-    if (!cell.model) return; //cell was just deleted
-    if (cell instanceof CodeCell || cell instanceof MarkdownCell) {
-      this.verNotebook.focusCell(cell);
-    }
+    console.log("focus:", cell);
+    if (!this.verNotebook.canListen ||  // currently in progress of switching checkpoints
+      !cell || !cell.model)             //cell was just deleted
+      return;
+    this.verNotebook.history.store.highlightRelevantNodes(cell);
+    this.verNotebook.focusCell(cell);
   }
 
   private listen() {

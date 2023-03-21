@@ -175,6 +175,12 @@ export namespace GhostToNotebookConverter {
       history.store.setCurrentNodeDatum(clickedNode);
     }
 
+    // Properly set focus to the current cell, so the highlighted nodes can be updated properly
+    const newCP = history.checkpoints.all()[history.store.currentNotebookIndex];
+    const newActiveCellIndex = newCP.targetCells[newCP.targetCells.length - 1]?.index;
+    if (newActiveCellIndex != null) history.notebook.view.notebook.activeCellIndex = newActiveCellIndex;
+    history.notebook.view.focusCell();
+
     console.log("SWITCHING DONE");
     let everythingDone = new Date().getTime();
 

@@ -18,6 +18,7 @@ import { Search } from "./search";
 import { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { Checkpoint } from "verdant/verdant-model/checkpoint";
 import { VerTreeNodeDatum } from "verdant/verdant-ui/panel/history-tree";
+import { Cell } from "@jupyterlab/cells";
 
 export type searchResult = {
   label: string;
@@ -176,7 +177,7 @@ export class HistoryStore {
 
   public appendNodeToTree(checkpoint: Checkpoint, changeType: string) {
     const parent = this.currentNode?.attributes?.notebook;
-    let nextNode = { 
+    let nextNode = {
       name: checkpoint.notebook.toString() + " " + changeType,
       attributes: { notebook: checkpoint.notebook, parentNotebook: parent, changeType },
       children: [],
@@ -224,6 +225,24 @@ export class HistoryStore {
       i++;
     }
     return res;
+  }
+
+  public highlightRelevantNodes(cell: Cell) {
+    const verCell = this.history.notebook.getCell(cell.model);
+
+    // In case vercell does not exist for this cell. Most likely because the cell type has changed
+    // (focusCell will be manually called after cell type change)
+    if (verCell == null) return;
+    const [targetType, targetID,] = verCell.modelName.split(".");
+
+    // Iterate over all nodes in the tree
+    this._nodeLookup.forEach(nodeDatum => {
+      const isRelevant = this.history.checkpoints.all()[nodeDatum.attributes.notebook].targetCells.some(c => {
+        const [currentType, currentID,] = c.cell.split(".");
+        return currentType === targetType && currentID === targetID;
+      });
+      nodeDatum.attributes.isHighlighted = isRelevant;
+    })
   }
 
   public store(nodey: Nodey): void {

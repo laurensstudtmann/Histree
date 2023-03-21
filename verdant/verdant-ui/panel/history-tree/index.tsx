@@ -91,7 +91,8 @@ export interface VerTreeNodeDatum extends TreeNodeDatum {
   attributes?: {
     notebook: number,
     parentNotebook: number,
-    changeType: string
+    changeType: string,
+    isHighlighted?: boolean  // For highlighting relevant nodes
   },
 }
 
@@ -203,9 +204,26 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       onContextMenu={(event) => this.handleContextMenu(event, nodeDatum)}
       onMouseEnter={(event) => this.handleMouseEnter(event, nodeDatum)}
       onMouseLeave={() => this.handleMouseLeave()}>
+      {/* Main node circle */}
       <circle r={15} fill={fillColor} stroke="none">
       </circle>
       {renderIcon(nodeDatum.attributes.changeType)}
+      {/* Highlight glow */}
+      {nodeDatum.attributes.isHighlighted &&
+        <>
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <circle r={15} fill="none" stroke="#FFB300" strokeWidth="3px" filter="url(#glow)">
+          </circle>
+        </>
+      }
       {/* Display surrounding circle for currentNode */}
       {nodeDatum.attributes.notebook === this.currentNotebookIndex && (
         <circle r={20} fill="none" stroke={fillColor} strokeWidth="3px" />
@@ -300,7 +318,7 @@ const mapStateToProps = (state: verdantState) => {
   let history = state.getHistory();
   let checkpoints = history.checkpoints.all();
   let numberOfCheckpoints = checkpoints.length; // Workaround to get React to rerender the component when a checkpoint is added
-  let currentNodeName = history.store.currentNode.name;  // Another workaround for rerendering
+  let currentNodeName = history.store.currentNode?.name;  // Another workaround for rerendering
   // Do a shallow copy of the history tree data structure to force a rerender (react-d3-tree does not update otherwise)
   let treeData = Object.assign({}, history.store.historyTree);
 
