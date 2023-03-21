@@ -3,7 +3,7 @@ import * as React from "react";
 import { verdantState } from "verdant/verdant-ui/redux";
 import { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/ghost-to-ipynb";
-import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon, DeleteIcon, VerticalDotsIcon } from "../../../verdant-ui/icons";
+import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon, DeleteIcon, VerticalDotsIcon, StarIcon } from "../../../verdant-ui/icons";
 import HoverMenu from "./hover-menu";
 import ReactDOM from "react-dom";
 import BottomMessage from "./bottom-message";
@@ -93,6 +93,7 @@ export interface VerTreeNodeDatum extends TreeNodeDatum {
     parentNotebook: number,
     changeType: string,
     isHighlighted?: boolean  // For highlighting relevant nodes
+    isBookmarked?: boolean
   },
 }
 
@@ -162,6 +163,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           pathFunc="straight"
           translate={{ x: this.state.containerWidth ? this.state.containerWidth / 2 : 50, y: 50 }}
           zoom={0.65}
+          scaleExtent={{ max: 2, min: 0.1 }}
           collapsible={true}
           renderCustomNodeElement={(rd3tProps) => // Get the proper reference from the store instead of the copy provided by the rd3tProps
             this.renderForeignObjectNode(this.props.history.store.getNodeByNotebookIndex(rd3tProps.nodeDatum.attributes.notebook as number), foreignObjectProps)}
@@ -180,7 +182,9 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
             <button onClick={() => this.toggleNode(this.state.contextMenuProps?.nodeDatum)}>
               {this.state.contextMenuProps?.nodeDatum?.__rd3t.collapsed ? "Expand Node" : "Collapse Node"}
             </button>
-            <button >Function 2</button>
+            <button onClick={() => this.toggleBookmark(this.state.contextMenuProps?.nodeDatum)}>
+              {this.state.contextMenuProps?.nodeDatum.attributes.isBookmarked ? "Remove Bookmark" : "Bookmark Node"}
+            </button>
           </div>,
           document.body)}
         <BottomMessage message={this.state.messageText} show={this.state.showMessage} setShow={(val) => this.setState({ showMessage: val })}></BottomMessage>
@@ -235,6 +239,10 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           <text dx={12} dy={-7.5} textAnchor="middle" fill="#fff" stroke="none" fontSize="14px" fontWeight="bold">{execCount}</text>
         </>
       )}
+      {/* Display bookmark star if applicable */}
+      {nodeDatum.attributes.isBookmarked === true && 
+        <StarIcon />
+      }
       {/* Display three vertical dots to signal that this node has collapsed children */}
       {nodeDatum.__rd3t.collapsed &&
         <VerticalDotsIcon
@@ -311,6 +319,17 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   collapseNode(node: VerTreeNodeDatum) {
     node.__rd3t.collapsed = true;
     this.props.toggleNodeCollapsed();
+  }
+
+  toggleBookmark(node: VerTreeNodeDatum) {
+    this.setState({ contextMenuProps: { show: false, x: null, y: null, nodeDatum: null } });
+    document.removeEventListener('click', this.handleClickOutsideContextMenu);
+
+    if (node == null) return;
+    if (node.attributes.isBookmarked === true)
+      node.attributes.isBookmarked = false;
+    else
+      node.attributes.isBookmarked = true;
   }
 }
 
