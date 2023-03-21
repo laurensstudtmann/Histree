@@ -14,7 +14,7 @@ export class Checkpoint {
     this.notebook = options.notebook;
     this.targetCells = options.targetCells;
     this.isOnlyExecuted = false;
-    this.mergeCount = 0;
+    this.mergeCount = options.mergeCount != null ? options.mergeCount : 0;
   }
 
   get id() {
@@ -26,7 +26,8 @@ export class Checkpoint {
       timestamp: this.timestamp,
       notebook: this.notebook,
       targetCells: this.targetCells,
-      isOnlyExecuted: this.isOnlyExecuted
+      isOnlyExecuted: this.isOnlyExecuted,
+      mergeCount: this.mergeCount,
     };
   }
 }
@@ -38,6 +39,7 @@ export namespace Checkpoint {
       notebook: dat.notebook,
       targetCells: dat.targetCells,
       isOnlyExecuted: dat.isOnlyExecuted,
+      mergeCount: dat.mergeCount,
     });
   }
 
@@ -46,6 +48,7 @@ export namespace Checkpoint {
     notebook: number;
     targetCells: CellRunData[];
     isOnlyExecuted: boolean;
+    mergeCount?: number;
   }
 
   export function formatTime(date: Date | number): string {
