@@ -75,6 +75,7 @@
   font-family: var(--jp-cell-prompt-font-family);
   text-align: left;
   overflow-x: auto;
+  border-radius: 5px;
 }
 .v-VerdantPanel-sampler-version.code {
   background: var(--jp-cell-editor-background);

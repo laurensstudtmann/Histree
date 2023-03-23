@@ -3,7 +3,7 @@ import * as React from "react";
 import { verdantState } from "verdant/verdant-ui/redux";
 import { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/ghost-to-ipynb";
-import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon, DeleteIcon, VerticalDotsIcon, StarIcon } from "../../../verdant-ui/icons";
+import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon, DeleteIcon, VerticalDotsIcon, StarIcon, PinIcon } from "../../../verdant-ui/icons";
 import HoverMenu from "./hover-menu";
 import ReactDOM from "react-dom";
 import BottomMessage from "./bottom-message";
@@ -62,7 +62,7 @@ let css = `
       background-color: white;
       border-radius: 5px;
       border-sizing: border-box !important;
-      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.4);
     }
     
     .context-menu button {
@@ -70,6 +70,7 @@ let css = `
       width: 100%;
       padding: 5px 10px 5px 10px;
       border: none;
+      border-radius: 5px;
       background-color: transparent;
       cursor: pointer;
       text-align: left;
@@ -81,6 +82,10 @@ let css = `
 
     .context-menu * {
       box-sizing: border-box;
+    }
+
+    .pin {
+
     }
     `;
 const nodeSize = { x: 40, y: 40 };
@@ -100,6 +105,8 @@ export interface VerTreeNodeDatum extends TreeNodeDatum {
 type TreeTab_Props = ConnectedProps<typeof connector>;
 type TreeTab_State = {
   showHoverMenu: boolean,
+  showHoverMenuOverride: boolean,
+  pinHovered: boolean,
   hoverX: number,
   hoverY: number,
   hoverNodeDatum: VerTreeNodeDatum,
@@ -112,12 +119,15 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   currentNotebookIndex: number
   containerRef: React.RefObject<HTMLDivElement>
   contextMenu: HTMLDivElement
+  hoverMenu: HTMLElement
 
   constructor(props: TreeTab_Props) {
     super(props);
     this.containerRef = React.createRef();
     this.state = {
       showHoverMenu: false,
+      showHoverMenuOverride: false,
+      pinHovered: false,
       hoverX: 100,
       hoverY: 100,
       hoverNodeDatum: null,
@@ -128,7 +138,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     };
 
     // Bind event handlers for correct 'this' inside handler
-    this.handleClickOutsideContextMenu = this.handleClickOutsideContextMenu.bind(this);
+    this.handleClickOutside = this.handleClickOutside.bind(this);
   }
 
   componentDidMount(): void {
@@ -136,7 +146,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('click', this.handleClickOutsideContextMenu);
+    document.removeEventListener('click', this.handleClickOutside);
   }
 
   render() {
@@ -145,12 +155,14 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       <div className="full-height" ref={this.containerRef}>
         <style>{css}</style>
         {ReactDOM.createPortal(
-          <HoverMenu
-            show={this.state.showHoverMenu}
-            x={this.state.hoverX}
-            y={this.state.hoverY}
-            nodeDatum={this.state.hoverNodeDatum}
-            history={this.props.history} />,
+          <div ref={el => this.hoverMenu = el}>
+            <HoverMenu
+              show={this.state.showHoverMenu || this.state.showHoverMenuOverride}
+              x={this.state.hoverX}
+              y={this.state.hoverY}
+              nodeDatum={this.state.hoverNodeDatum}
+              history={this.props.history} />
+          </div>,
           document.body)}
         {/* <div>{"asdf" + this.props.currentNodeName}</div> */}
         {/* <img src={playCustom} /> */}
@@ -203,6 +215,11 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     const fillColor = getNodeColor(nodeDatum.attributes.changeType);
     const darkFillColor = getNodeColor(nodeDatum.attributes.changeType, true);
     const execCount = nodeDatum.attributes.notebook != null ? this.props.history.checkpoints.all()[nodeDatum.attributes.notebook].mergeCount + 1 : 0;
+
+    const showPinButton = (this.state.showHoverMenu || this.state.showHoverMenuOverride) && nodeDatum.attributes.notebook === this.state.hoverNodeDatum.attributes.notebook;
+    const pinOpacity = this.state.showHoverMenuOverride
+      ? 1
+      : (this.state.pinHovered ? 0.7 : 0.3);
     return <g pointerEvents="visible"
       onClick={() => this.handleNodeClick(nodeDatum)}
       onContextMenu={(event) => this.handleContextMenu(event, nodeDatum)}
@@ -212,6 +229,31 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       <circle r={15} fill={fillColor} stroke="none">
       </circle>
       {renderIcon(nodeDatum.attributes.changeType)}
+      {/* Pin button */}
+      <circle style={{
+        position: "absolute",
+        top: this.state.hoverY,
+        left: this.state.hoverX,
+        visibility: showPinButton ? "visible" : "hidden",
+      }}
+        r={17}
+        cx={32}
+        cy={0}
+        fill="#f57c00"
+        fillOpacity={this.state.showHoverMenuOverride ? 0.2 : 0}
+        stroke="#000"
+        strokeWidth={7}
+        strokeOpacity={0}
+        onClickCapture={(e) => {
+          document.addEventListener('click', this.handleClickOutside);
+          e.stopPropagation();
+          this.setState({ showHoverMenuOverride: !this.state.showHoverMenuOverride });
+        }}
+        onMouseEnter={() => this.setState({ pinHovered: true })}
+        onMouseLeave={() => this.setState({ pinHovered: false })}
+        >
+        </circle>
+        { showPinButton && <PinIcon fillOpacity={pinOpacity} fillColor={this.state.showHoverMenuOverride ? "#f57c00" : "#AAA"}/>}
       {/* Highlight glow */}
       {nodeDatum.attributes.isHighlighted &&
         <>
@@ -240,7 +282,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
         </>
       )}
       {/* Display bookmark star if applicable */}
-      {nodeDatum.attributes.isBookmarked === true && 
+      {nodeDatum.attributes.isBookmarked === true &&
         <StarIcon />
       }
       {/* Display three vertical dots to signal that this node has collapsed children */}
@@ -274,36 +316,41 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   }
 
   handleMouseEnter(event: React.MouseEvent<SVGGElement, MouseEvent>, nodeDatum: VerTreeNodeDatum) {
+    if (this.state.showHoverMenuOverride) return;
     let pos = event.currentTarget.getBoundingClientRect();
+    
     this.setState({ hoverX: pos.right, hoverY: pos.top, showHoverMenu: true, hoverNodeDatum: nodeDatum })
   }
   handleMouseLeave() {
-    this.setState({ showHoverMenu: false, hoverNodeDatum: null });
+    if (!this.state.showHoverMenuOverride)
+      this.setState({ showHoverMenu: false, hoverNodeDatum: null });
   }
 
   handleContextMenu(event: React.MouseEvent, node: VerTreeNodeDatum) {
     event.preventDefault();   // Do not show normal context menu
     this.setState({ contextMenuProps: { show: true, x: event.clientX, y: event.clientY, nodeDatum: node } });
-    document.addEventListener('click', this.handleClickOutsideContextMenu);
+    document.addEventListener('click', this.handleClickOutside);
 
     //if (node.__rd3t.collapsed) this.expandNode(node);
     //else this.collapseNode(node);
     console.log("context menu", node.name);
   }
 
-  handleClickOutsideContextMenu(e) {
-    if (this.state.contextMenuProps?.show == false) return;
-
-    if (e === "fromOnUpdate" || (this.contextMenu && !this.contextMenu.contains(e.target))) {
+  handleClickOutside(e) {
+    if (this.state.contextMenuProps?.show && this.contextMenu && !this.contextMenu.contains(e.target)) {
       this.setState({ contextMenuProps: { show: false, x: null, y: null, nodeDatum: null } });
-
-      document.removeEventListener('click', this.handleClickOutsideContextMenu);
+      document.removeEventListener('click', this.handleClickOutside);
     }
+    if (this.state.showHoverMenuOverride && this.hoverMenu && !this.hoverMenu.contains(e.target)) {
+      this.setState({ showHoverMenuOverride: false, showHoverMenu: false, hoverNodeDatum: null });
+      document.removeEventListener('click', this.handleClickOutside);
+    }
+
   }
 
   toggleNode(node: VerTreeNodeDatum) {
     this.setState({ contextMenuProps: { show: false, x: null, y: null, nodeDatum: null } });
-    document.removeEventListener('click', this.handleClickOutsideContextMenu);
+    document.removeEventListener('click', this.handleClickOutside);
 
     if (node == null) return;
     if (node.__rd3t.collapsed) this.expandNode(node);
@@ -323,7 +370,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
 
   toggleBookmark(node: VerTreeNodeDatum) {
     this.setState({ contextMenuProps: { show: false, x: null, y: null, nodeDatum: null } });
-    document.removeEventListener('click', this.handleClickOutsideContextMenu);
+    document.removeEventListener('click', this.handleClickOutside);
 
     if (node == null) return;
     if (node.attributes.isBookmarked === true)

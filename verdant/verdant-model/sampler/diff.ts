@@ -227,6 +227,10 @@ export class Diff {
     );
     diffKind = fixedDiffKind;
 
+    if (newText === "" && oldText === "") {
+      elem.classList.remove("v-VerdantPanel-sampler-version-content", "code");
+      return elem;
+    }
     // If no diff necessary, use plain code
     if (diffKind === DIFF_TYPE.NO_DIFF) {
       return this.sampler.plainCode(elem, newText);
@@ -254,6 +258,8 @@ export class Diff {
       let oldLine = oldLines[i] || "";
       elem.appendChild(this.diffLine(oldLine, newLine));
     }
+    if (maxLength === 0)
+      elem.classList.add()
 
     return elem;
   }

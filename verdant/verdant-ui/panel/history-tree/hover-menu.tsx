@@ -57,6 +57,20 @@ type HoverMenuProps = {
 }
 const HoverMenu = (props: HoverMenuProps) => {
   const [diff, setDiff]: [DiffMenuType, React.Dispatch<DiffMenuType>] = React.useState(undefined);
+  const [height, setHeight] = React.useState(0);
+  const hoverRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (hoverRef.current && hoverRef.current.clientHeight !== height) {
+      setHeight(hoverRef.current.clientHeight);
+    }
+  }, [diff]);
+  //const height = hoverRef.current ? hoverRef.current.clientHeight : 0;
+
+  const availableSpace = window.innerHeight - props.y - 5;  // Leave a margin at the bottom
+  const yCoord = height > availableSpace
+    ? props.y - (height - availableSpace)
+    : props.y;
 
   // Request diff if we do not have one, or we have a diff for a different node
   let shouldRequestDiff =
@@ -80,16 +94,21 @@ const HoverMenu = (props: HoverMenuProps) => {
   // Render if our props told us to, there is a diff available, and it is the diff for the current node
   const visible = props.show && props.nodeDatum != null && (diff?.notebook_number === props.nodeDatum.attributes.notebook);
   return (
-    <div style={{
-      position: "absolute",
-      backgroundColor: "#eee",
-      borderRadius: "5px",
-      boxSizing: "border-box",
-      left: props.x,
-      top: props.y,
-      visibility: visible ? 'visible' : 'hidden'
-
-    }} className="hover-menu-container" >
+    <div
+      ref={hoverRef}
+      style={{
+        position: "absolute",
+        backgroundColor: "#fff",
+        borderRadius: "5px",
+        boxSizing: "border-box",
+        boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.4)",
+        padding: "2px 5px 5px 5px",
+        left: props.x,
+        top: yCoord >= 5 ? yCoord : 5,  // Leave a margin at the top
+        visibility: visible ? 'visible' : 'hidden',
+        maxHeight: window.innerHeight - 10,
+        overflow: "auto",
+      }}>
       {/* {props.nodeDatum?.name} */}
       <HoverMenuDiff diff={diff} />
     </div >
@@ -103,9 +122,10 @@ const HoverMenuDiff = (props: { diff: DiffMenuType }) => {
         props.diff.elements.map((element, i) =>
           <div key={i}>
             <div>Cell {props.diff.affectedCells[i]} was {props.diff.changeTypes[i]}.</div>
-            <div dangerouslySetInnerHTML={{
-              __html: element.outerHTML,
-            }} />
+            <div
+              dangerouslySetInnerHTML={{
+                __html: element.outerHTML,
+              }} />
             {props.diff.outputs[i] &&
               <div>
                 <div>Output of cell {props.diff.affectedCells[i]} was changed.</div>

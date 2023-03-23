@@ -67,6 +67,17 @@ export class VerticalDotsIcon extends React.Component<{ y: number, onClickFn: ()
   }
 }
 
+export class PinIcon extends React.Component<{ fillColor: string, fillOpacity: number }> {
+  constructor(props: { fillColor: string, fillOpacity: number}) {
+    super(props)
+  }
+  render() {
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" pointerEvents="none" x={20} y={-10} viewBox="0 0 24 24" height="24px" width="24px" fill={this.props.fillColor} fillOpacity={this.props.fillOpacity} stroke="none"><title>Pin Change Summary</title><path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" /></svg>
+    );
+  }
+}
+
 export class InspectIcon extends React.Component {
   render() {
     return (
