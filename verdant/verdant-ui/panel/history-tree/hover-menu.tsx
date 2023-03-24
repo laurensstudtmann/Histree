@@ -102,33 +102,42 @@ const HoverMenu = (props: HoverMenuProps) => {
         borderRadius: "5px",
         boxSizing: "border-box",
         boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.4)",
-        padding: "2px 5px 5px 5px",
+        padding: "4px 8px 8px 8px",
         left: props.x,
         top: yCoord >= 5 ? yCoord : 5,  // Leave a margin at the top
         visibility: visible ? 'visible' : 'hidden',
         maxHeight: window.innerHeight - 10,
+        maxWidth: window.innerWidth - props.x - 10,
         overflow: "auto",
       }}>
       {/* {props.nodeDatum?.name} */}
-      <HoverMenuDiff diff={diff} />
+      <HoverMenuDiff diff={diff} nodeChangeType={props.nodeDatum?.attributes?.changeType}/>
     </div >
   );
 };
 
-const HoverMenuDiff = (props: { diff: DiffMenuType }) => {
+const HoverMenuDiff = (props: { diff: DiffMenuType, nodeChangeType: string }) => {
+  const getChangeTypeStr = (changeType: string) => {
+    if (changeType === "add") return "added";
+    if (changeType === "execute") return "executed";
+    if (changeType === "delete") return "removed";
+    if (changeType === "move") return "moved";
+    if (changeType === "changeCellType") return "converted to a different cell type";
+    return "edited";  // for "save" and any other operations
+  }
   return (
     <div>
       {props.diff && props.diff.elements &&
         props.diff.elements.map((element, i) =>
-          <div key={i}>
-            <div>Cell {props.diff.affectedCells[i]} was {props.diff.changeTypes[i]}.</div>
+          <div key={i} style={{ padding: i < props.diff.elements.length - 1 ? "0 0 15px 0" : "0 0 0 0"}}>
+            <div><b>Cell {props.diff.affectedCells[i]}</b> was {getChangeTypeStr(props.nodeChangeType)/*props.diff.changeTypes[i]*/}.</div>
             <div
               dangerouslySetInnerHTML={{
                 __html: element.outerHTML,
               }} />
             {props.diff.outputs[i] &&
               <div>
-                <div>Output of cell {props.diff.affectedCells[i]} was changed.</div>
+                <div><b>Cell {props.diff.affectedCells[i]}</b>'s output was changed.</div>
                 <div dangerouslySetInnerHTML={{
                   __html: props.diff.outputs[i].outerHTML,
                 }} />
