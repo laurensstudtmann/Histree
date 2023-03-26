@@ -86,15 +86,17 @@ let css = `
 
     .button-group {
       position: absolute;
-      top: 45px;
+      top: 52px;
       right: 10px;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-end;
     }
     
     .button {
-      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
       height: 30px;
       background-color: white;
       border: none;
@@ -108,6 +110,16 @@ let css = `
 
     .button:hover {
       background-color: #f5f5f5;
+    }
+
+    .button-text {
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    .icon-div {
+      display: flex;
+      justify-content: flex-end;
     }
 
     `;
@@ -328,18 +340,24 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
 
   renderButtons() {
     return (
-      <div className="button-group" onMouseOver={() => this.setState({ verboseButtons: true })} onMouseOut={() => this.setState({ verboseButtons: false })}>
+      <div className="button-group" onMouseEnter={() => { console.log("going over"); this.setState({ verboseButtons: true }); }} onMouseLeave={() => { console.log("going out"); this.setState({ verboseButtons: false }); }}>
         <button className="button" onClick={() => this.toggleBookmark(this.props.history.store.currentNode)}>
-          {/* {false && this.props.history.store.currentNode?.attributes.isBookmarked ? "Remove Bookmark" : "Bookmark Node"} */}
-          <StarOnOff active={!this.props.history.store.currentNode?.attributes.isBookmarked}></StarOnOff>
+          {this.state.verboseButtons && (
+            <div className="button-text">{(this.props.history.store.currentNode?.attributes.isBookmarked ? "Remove Bookmark" : "Bookmark Current Node")}</div>
+          )}
+          <div className="icon-div"><StarOnOff active={!this.props.history.store.currentNode?.attributes.isBookmarked}></StarOnOff></div>
         </button>
         <button className="button" onClick={() => this.toggleNode(this.props.history.store.currentNode)}>
-          {/* {false && this.props.history.store.currentNode?.__rd3t.collapsed ? "Expand Node" : "Collapse Node"} */}
-          <CollapseOnOff active={!this.props.history.store.currentNode?.__rd3t.collapsed}></CollapseOnOff>
+          {this.state.verboseButtons && (
+            <div className="button-text">{(this.props.history.store.currentNode?.__rd3t.collapsed ? "Expand Current Node" : "Collapse Current Node")}</div>
+          )}
+          <div className="icon-div"><CollapseOnOff active={!this.props.history.store.currentNode?.__rd3t.collapsed}></CollapseOnOff></div>
         </button>
-        <button className="button" onClick={() => this.setState({ enableHighlighting: !this.state.enableHighlighting })}>
-          {/* {false && this.state.enableHighlighting ? "Disable Node Highlights" : "Highlight Relevant Nodes"} */}
-          <ShimmerOnOff active={this.state.enableHighlighting}></ShimmerOnOff>
+        <button className="button" onClick={() => this.setHighlighting(!this.state.enableHighlighting)}>
+          {this.state.verboseButtons && (
+            <div className="button-text">{this.state.enableHighlighting ? "Disable Node Highlights" : "Highlight Relevant Nodes"}</div>
+          )}
+          <div className="icon-div"><ShimmerOnOff active={this.state.enableHighlighting}></ShimmerOnOff></div>
         </button>
       </div>
     );
@@ -422,6 +440,13 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       node.attributes.isBookmarked = false;
     else
       node.attributes.isBookmarked = true;
+  }
+
+  setHighlighting(val: boolean) {
+    if (val)
+      this.setState({ enableHighlighting: true, showMessage: true, messageText: "Highlighting nodes which modified the currently selected cell." });
+    else
+      this.setState({ enableHighlighting: false });
   }
 }
 

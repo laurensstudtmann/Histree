@@ -84,9 +84,9 @@ export class StarOnOff extends React.Component<{ active: boolean }> {
   }
   render() {
     if (this.props.active)
-      return <svg xmlns="http://www.w3.org/2000/svg" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" stroke="none"><title>Bookmark</title><path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" /></svg>
+      return <svg xmlns="http://www.w3.org/2000/svg" pointerEvents="none" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" stroke="none"><title>Bookmark</title><path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" /></svg>
     else
-      return <svg xmlns="http://www.w3.org/2000/svg" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" stroke="none"><title>Remove Bookmark</title><path d="M22.1 21.5L2.4 1.7L1.1 3L6.9 8.8L2 9.2L7.5 14L5.9 21L12.1 17.3L18.3 21L18 19.8L20.9 22.7L22.1 21.5M15.8 17.7L12 15.4L8.2 17.7L9.2 13.4L5.9 10.5L8.4 10.3L15.8 17.7M11.2 8L10 6.8L12 2L14.8 8.6L22 9.2L16.9 13.6L15.8 12.5L18.2 10.5L13.8 10.1L12.1 6.1L11.2 8Z" /></svg>
+      return <svg xmlns="http://www.w3.org/2000/svg" pointerEvents="none" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" stroke="none"><title>Remove Bookmark</title><path d="M22.1 21.5L2.4 1.7L1.1 3L6.9 8.8L2 9.2L7.5 14L5.9 21L12.1 17.3L18.3 21L18 19.8L20.9 22.7L22.1 21.5M15.8 17.7L12 15.4L8.2 17.7L9.2 13.4L5.9 10.5L8.4 10.3L15.8 17.7M11.2 8L10 6.8L12 2L14.8 8.6L22 9.2L16.9 13.6L15.8 12.5L18.2 10.5L13.8 10.1L12.1 6.1L11.2 8Z" /></svg>
   }
 }
 
@@ -96,9 +96,9 @@ export class CollapseOnOff extends React.Component<{ active: boolean }> {
   }
   render() {
     if (this.props.active)
-      return <svg xmlns="http://www.w3.org/2000/svg" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" stroke="none"><title>Collapse Current Node</title><path d="M4,2A2,2 0 0,0 2,4V14H4V4H14V2H4M8,6A2,2 0 0,0 6,8V18H8V8H18V6H8M20,12V20H12V12H20M20,10H12A2,2 0 0,0 10,12V20A2,2 0 0,0 12,22H20A2,2 0 0,0 22,20V12A2,2 0 0,0 20,10M19,17H13V15H19V17Z" /></svg>
+      return <svg xmlns="http://www.w3.org/2000/svg" pointerEvents="none" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" stroke="none"><title>Collapse Current Node</title><path d="M4,2A2,2 0 0,0 2,4V14H4V4H14V2H4M8,6A2,2 0 0,0 6,8V18H8V8H18V6H8M20,12V20H12V12H20M20,10H12A2,2 0 0,0 10,12V20A2,2 0 0,0 12,22H20A2,2 0 0,0 22,20V12A2,2 0 0,0 20,10M19,17H13V15H19V17Z" /></svg>
     else
-      return <svg xmlns="http://www.w3.org/2000/svg" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" stroke="none"><title>Expand Current Node</title><path d="M4,2A2,2 0 0,0 2,4V14H4V4H14V2H4M8,6A2,2 0 0,0 6,8V18H8V8H18V6H8M20,12V20H12V12H20M20,10H12A2,2 0 0,0 10,12V20A2,2 0 0,0 12,22H20A2,2 0 0,0 22,20V12A2,2 0 0,0 20,10M19,17H17V19H15V17H13V15H15V13H17V15H19V17Z" /></svg>
+      return <svg xmlns="http://www.w3.org/2000/svg" pointerEvents="none" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" stroke="none"><title>Expand Current Node</title><path d="M4,2A2,2 0 0,0 2,4V14H4V4H14V2H4M8,6A2,2 0 0,0 6,8V18H8V8H18V6H8M20,12V20H12V12H20M20,10H12A2,2 0 0,0 10,12V20A2,2 0 0,0 12,22H20A2,2 0 0,0 22,20V12A2,2 0 0,0 20,10M19,17H17V19H15V17H13V15H15V13H17V15H19V17Z" /></svg>
   }
 }
 
@@ -109,7 +109,7 @@ export class ShimmerOnOff extends React.Component<{ active: boolean }> {
   render() {
     if (this.props.active)
       return <>
-        <svg xmlns="http://www.w3.org/2000/svg" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" fill="#EF6C00" stroke="none" filter="url(#smallglow)"><title>Highlight Relevant Nodes</title><path d="M10.6 9.6L9 15L7.4 9.6L2 8L7.4 6.4L9 1L10.6 6.4L16 8L10.6 9.6M17 14.2L21 12L18.8 16L21 20L17 17.8L13 20L15.2 16L13 12L17 14.2M10 16L8.3 19L10 22L7 20.3L4 22L5.7 19L4 16L7 17.7L10 16" />
+        <svg xmlns="http://www.w3.org/2000/svg" pointerEvents="none" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" fill="#EF6C00" stroke="none" filter="url(#smallglow)"><title>Highlight Relevant Nodes</title><path d="M10.6 9.6L9 15L7.4 9.6L2 8L7.4 6.4L9 1L10.6 6.4L16 8L10.6 9.6M17 14.2L21 12L18.8 16L21 20L17 17.8L13 20L15.2 16L13 12L17 14.2M10 16L8.3 19L10 22L7 20.3L4 22L5.7 19L4 16L7 17.7L10 16" />
           <defs>
             <filter id="smallglow" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%" filterRes="600">
               <feDropShadow dx="0" dy="0" stdDeviation="1" floodColor="#EF6C00" />
@@ -118,7 +118,7 @@ export class ShimmerOnOff extends React.Component<{ active: boolean }> {
         </svg>
       </>
     else
-      return <svg xmlns="http://www.w3.org/2000/svg" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" fill="#000" stroke="none"><title>Highlight Relevant Nodes</title><path d="M10.6 9.6L9 15L7.4 9.6L2 8L7.4 6.4L9 1L10.6 6.4L16 8L10.6 9.6M17 14.2L21 12L18.8 16L21 20L17 17.8L13 20L15.2 16L13 12L17 14.2M10 16L8.3 19L10 22L7 20.3L4 22L5.7 19L4 16L7 17.7L10 16" /></svg>
+      return <svg xmlns="http://www.w3.org/2000/svg" pointerEvents="none" x={0} y={0} viewBox="0 0 24 24" height="24px" width="24px" fill="#000" stroke="none"><title>Highlight Relevant Nodes</title><path d="M10.6 9.6L9 15L7.4 9.6L2 8L7.4 6.4L9 1L10.6 6.4L16 8L10.6 9.6M17 14.2L21 12L18.8 16L21 20L17 17.8L13 20L15.2 16L13 12L17 14.2M10 16L8.3 19L10 22L7 20.3L4 22L5.7 19L4 16L7 17.7L10 16" /></svg>
   }
 }
 

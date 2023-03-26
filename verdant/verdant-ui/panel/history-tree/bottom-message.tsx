@@ -74,7 +74,7 @@ const css = `
   left: 50%;
   right: 50%;
   transform: translate(-50%, -50%);
-  width: 200px;
+  width: 210px;
   background-color: #eee;
   padding: 10px;
   text-align: center;
@@ -82,6 +82,7 @@ const css = `
   transition: opacity 0.5s ease-in-out;
   opacity: 0;
   pointer-events: none;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.4);
 }
 
 .message.visible {
@@ -99,9 +100,9 @@ const BottomMessage = ({ message, show, setShow }) => {
       setTimeout(() => {
         setIsVisible(false);
         setShow(false);
-      }, 3000);
+      }, 5000);
     }
-  }, [show, setShow]);
+  }, [show]);
 
   const handleTransitionEnd = () => {
     if (!isVisible) {
