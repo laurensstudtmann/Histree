@@ -3,7 +3,7 @@ import * as React from "react";
 import { verdantState } from "verdant/verdant-ui/redux";
 import { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/ghost-to-ipynb";
-import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon, DeleteIcon, VerticalDotsIcon, StarIcon, PinIcon } from "../../../verdant-ui/icons";
+import { PlayIcon, PlusIcon, SaveIcon, MoveIcon, SwapIcon, DeleteIcon, VerticalDotsIcon, StarIcon, PinIcon, StarOnOff, CollapseOnOff, ShimmerOnOff } from "../../../verdant-ui/icons";
 import HoverMenu from "./hover-menu";
 import ReactDOM from "react-dom";
 import BottomMessage from "./bottom-message";
@@ -84,9 +84,32 @@ let css = `
       box-sizing: border-box;
     }
 
-    .pin {
-
+    .button-group {
+      position: absolute;
+      top: 45px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+    
+    .button {
+      width: 100%;
+      height: 30px;
+      background-color: white;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
+      margin-bottom: 5px;
+      padding: 0 2px 0 2px;
+    }
+
+    .button:hover {
+      background-color: #f5f5f5;
+    }
+
     `;
 const nodeSize = { x: 40, y: 40 };
 const foreignObjectProps = { width: nodeSize.x + 5, height: nodeSize.y, x: 18, y: -10 };
@@ -107,13 +130,15 @@ type TreeTab_State = {
   showHoverMenu: boolean,
   showHoverMenuOverride: boolean,
   pinHovered: boolean,
+  verboseButtons: boolean,
   hoverX: number,
   hoverY: number,
   hoverNodeDatum: VerTreeNodeDatum,
   showMessage: boolean,
   messageText: string,
   containerWidth: number | null,
-  contextMenuProps: { show: boolean, x: number, y: number, nodeDatum: VerTreeNodeDatum }
+  contextMenuProps: { show: boolean, x: number, y: number, nodeDatum: VerTreeNodeDatum },
+  enableHighlighting: boolean,
 }
 class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   currentNotebookIndex: number
@@ -128,6 +153,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       showHoverMenu: false,
       showHoverMenuOverride: false,
       pinHovered: false,
+      verboseButtons: false,
       hoverX: 100,
       hoverY: 100,
       hoverNodeDatum: null,
@@ -135,6 +161,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       messageText: undefined,
       containerWidth: undefined,
       contextMenuProps: null,
+      enableHighlighting: false,
     };
 
     // Bind event handlers for correct 'this' inside handler
@@ -173,7 +200,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           orientation="vertical"
           nodeSize={nodeSize}
           pathFunc="straight"
-          translate={{ x: this.state.containerWidth ? this.state.containerWidth / 2 : 50, y: 50 }}
+          translate={{ x: this.state.containerWidth ? this.state.containerWidth / 3 : 50, y: 50 }}
           zoom={0.65}
           scaleExtent={{ max: 2, min: 0.1 }}
           collapsible={true}
@@ -200,6 +227,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           </div>,
           document.body)}
         <BottomMessage message={this.state.messageText} show={this.state.showMessage} setShow={(val) => this.setState({ showMessage: val })}></BottomMessage>
+        {this.renderButtons()}
       </div>
     );
   }
@@ -239,7 +267,8 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
         r={17}
         cx={32}
         cy={0}
-        fill="#f57c00"
+        // Use orange-ish glow around delete cells to better distinguish it from the red
+        fill="#EF6C00"
         fillOpacity={this.state.showHoverMenuOverride ? 0.2 : 0}
         stroke="#000"
         strokeWidth={7}
@@ -251,22 +280,19 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
         }}
         onMouseEnter={() => this.setState({ pinHovered: true })}
         onMouseLeave={() => this.setState({ pinHovered: false })}
-        >
-        </circle>
-        { showPinButton && <PinIcon fillOpacity={pinOpacity} fillColor={this.state.showHoverMenuOverride ? "#f57c00" : "#AAA"}/>}
+      >
+      </circle>
+      {showPinButton && <PinIcon fillOpacity={pinOpacity} fillColor={this.state.showHoverMenuOverride ? "#EF6C00" : "#AAA"} />}
       {/* Highlight glow */}
-      {nodeDatum.attributes.isHighlighted &&
+      {this.state.enableHighlighting && nodeDatum.attributes.isHighlighted &&
         <>
           <defs>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-              <feMerge>
-                <feMergeNode in="coloredBlur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
+            <filter id="glow" filterUnits="userSpaceOnUse" x="-50%" y="-50%" width="200%" height="200%" filterRes="600">
+              <feDropShadow dx="0" dy="0" stdDeviation="1" floodColor={nodeDatum.attributes.changeType === "delete" ? "#f57c00" : "#EF6C00"} />
+              <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor={nodeDatum.attributes.changeType === "delete" ? "#f57c00" : "#EF6C00"} />
             </filter>
           </defs>
-          <circle r={15} fill="none" stroke="#FFB300" strokeWidth="3px" filter="url(#glow)">
+          <circle r={15} fill="none" stroke={nodeDatum.attributes.changeType === "delete" ? "#f57c00" : "#EF6C00"} strokeWidth="3px" filter="url(#glow)">
           </circle>
         </>
       }
@@ -300,6 +326,25 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     </g>
   }
 
+  renderButtons() {
+    return (
+      <div className="button-group" onMouseOver={() => this.setState({ verboseButtons: true })} onMouseOut={() => this.setState({ verboseButtons: false })}>
+        <button className="button" onClick={() => this.toggleBookmark(this.props.history.store.currentNode)}>
+          {/* {false && this.props.history.store.currentNode?.attributes.isBookmarked ? "Remove Bookmark" : "Bookmark Node"} */}
+          <StarOnOff active={!this.props.history.store.currentNode?.attributes.isBookmarked}></StarOnOff>
+        </button>
+        <button className="button" onClick={() => this.toggleNode(this.props.history.store.currentNode)}>
+          {/* {false && this.props.history.store.currentNode?.__rd3t.collapsed ? "Expand Node" : "Collapse Node"} */}
+          <CollapseOnOff active={!this.props.history.store.currentNode?.__rd3t.collapsed}></CollapseOnOff>
+        </button>
+        <button className="button" onClick={() => this.setState({ enableHighlighting: !this.state.enableHighlighting })}>
+          {/* {false && this.state.enableHighlighting ? "Disable Node Highlights" : "Highlight Relevant Nodes"} */}
+          <ShimmerOnOff active={this.state.enableHighlighting}></ShimmerOnOff>
+        </button>
+      </div>
+    );
+  }
+
   handleNodeClick(nodeDatum: VerTreeNodeDatum) {
     const kernel = this.props.history.notebook.view.panel.sessionContext.session.kernel;
     if (kernel.status === "busy") {
@@ -318,7 +363,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   handleMouseEnter(event: React.MouseEvent<SVGGElement, MouseEvent>, nodeDatum: VerTreeNodeDatum) {
     if (this.state.showHoverMenuOverride) return;
     let pos = event.currentTarget.getBoundingClientRect();
-    
+
     this.setState({ hoverX: pos.right, hoverY: pos.top, showHoverMenu: true, hoverNodeDatum: nodeDatum })
   }
   handleMouseLeave() {
