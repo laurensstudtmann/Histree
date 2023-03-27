@@ -163,7 +163,8 @@ const getTimeString = (timestamp: number) => {
   today.setDate(today.getDate() - 1);
   const yesterday = today;
   if (isSameDay(date, yesterday)) return "Yesterday, " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-  return date.toLocaleString();
+  const locStr = date.toLocaleString();
+  return locStr.substring(0, locStr.length - 3);  // Remove seconds manually, because the dateStyle formatting properties are bugged out in this typescript version
 }
 
 const isSameDay = (someDate: Date, comparisonDate: Date) => {
