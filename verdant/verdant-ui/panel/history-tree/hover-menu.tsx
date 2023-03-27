@@ -68,7 +68,7 @@ const HoverMenu = (props: HoverMenuProps) => {
   }, [diff]);
   //const height = hoverRef.current ? hoverRef.current.clientHeight : 0;
 
-  const availableSpace = window.innerHeight - props.y - 5;  // Leave a margin at the bottom
+  const availableSpace = window.innerHeight - props.y - (height < 100 || (props.y > window.innerHeight - 70) ? 10 : 50);  // Leave a margin at the bottom
   const yCoord = height > availableSpace
     ? props.y - (height - availableSpace)
     : props.y;
@@ -107,8 +107,8 @@ const HoverMenu = (props: HoverMenuProps) => {
         left: props.x,
         top: yCoord >= 5 ? yCoord : 5,  // Leave a margin at the top
         visibility: visible ? 'visible' : 'hidden',
-        maxHeight: window.innerHeight - 10,
-        maxWidth: window.innerWidth - props.x - 10,
+        maxHeight: window.innerHeight * 0.7,
+        maxWidth: window.innerWidth * 0.7,
         overflow: "auto",
       }}>
       {/* {props.nodeDatum?.name} */}
