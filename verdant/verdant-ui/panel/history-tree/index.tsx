@@ -236,7 +236,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
             <button onClick={() => this.toggleBookmark(this.state.contextMenuProps?.nodeDatum)}>
               {this.state.contextMenuProps?.nodeDatum.attributes.isBookmarked ? "Remove Bookmark" : "Bookmark Node"}
             </button>
-            <button onClick={() => this.props.openGhostBook(this.state.contextMenuProps.nodeDatum.attributes.notebook)}>
+            <button onClick={() => this.handleGhostbookBtnClick()}>
               Open changes in ghost book
             </button>
           </div>,
@@ -402,6 +402,13 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     console.log("context menu", node.name);
   }
 
+  handleGhostbookBtnClick() {
+    this.setState({ contextMenuProps: { show: false, x: null, y: null, nodeDatum: null } });
+    document.removeEventListener('click', this.handleClickOutside);
+
+    this.props.openGhostBook(this.state.contextMenuProps.nodeDatum.attributes.notebook)
+  }
+
   handleClickOutside(e) {
     if (this.state.contextMenuProps?.show && this.contextMenu && !this.contextMenu.contains(e.target)) {
       this.setState({ contextMenuProps: { show: false, x: null, y: null, nodeDatum: null } });
@@ -411,7 +418,6 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       this.setState({ showHoverMenuOverride: false, showHoverMenu: false, hoverNodeDatum: null });
       document.removeEventListener('click', this.handleClickOutside);
     }
-
   }
 
   toggleNode(node: VerTreeNodeDatum) {
