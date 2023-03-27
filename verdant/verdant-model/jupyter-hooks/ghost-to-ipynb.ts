@@ -227,11 +227,17 @@ export namespace GhostToNotebookConverter {
         //verCellNames.splice(vcIndex, 1);
       } else {
         console.log("not found. Replacing...");
+        let genCell = generatedCells[i];
+        if (genCell == null) {
+          console.error("ERROR: Generated Cell undefined! Attempting automatic fix...");
+          genCell = await generateCellFn(sourceCellNames[i]);
+          if (genCell == null) console.error("ERROR: Automatic fix failed!");
+        }
         if (targetCells.length < sourceCellNames.length) {
-          targetCells.insert(i, generatedCells[i]);
+          targetCells.insert(i, genCell);
           verCellNames.splice(i, 0, "");  // Insert dummy value to keep indices intact
         } else {
-          targetCells.set(i, generatedCells[i]);
+          targetCells.set(i, genCell);
           verCellNames[i] = "";  // Insert dummy value for good measure
         }
       }
