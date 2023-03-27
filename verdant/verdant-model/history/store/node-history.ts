@@ -85,6 +85,7 @@ export class NodeHistory<T extends Nodey> {
       const [compareType, compareID,] = c.split(".");
       return typeChar === compareType && id === compareID;
     });
+    //if (cellName == null) return undefined;
     if (forOutput) {
       for (let i = this.versions.length - 1; i >= 0; i--) {
         if (this.versions[i].parent === cellName) {

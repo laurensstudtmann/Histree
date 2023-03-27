@@ -6,7 +6,6 @@ import { verdantState } from "../../redux/";
 import { NodeyNotebook } from "../../../verdant-model/nodey";
 import { Namer } from "../../../verdant-model/sampler";
 import { Checkpoint } from "verdant/verdant-model/checkpoint";
-import { GhostToNotebookConverter } from "../../../verdant-model/jupyter-hooks/ghost-to-ipynb";
 import { History } from "verdant/verdant-model/history/history"
 
 type react_NotebookEvent_Props = {
@@ -32,11 +31,6 @@ class NotebookEvent extends React.Component<NotebookEvent_Props> {
         <div
           className="Verdant-events-event-row-index verdant-link"
           onClick={this.props.openGhostBook}
-          onContextMenu={() => {
-              console.log("hello " + this.props.notebook.version);
-              GhostToNotebookConverter.convert(this.props.history, this.props.notebook, false);
-            }
-          }
         >
           {Namer.getNotebookVersionLabel(this.props.notebook)}
         </div>

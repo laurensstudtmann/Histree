@@ -5,7 +5,6 @@ import {
   showDetailOfNode,
   ghostState,
   initGhostBook,
-  verdantState,
   closeGhostBook,
 } from "../redux/";
 import { Widget } from "@lumino/widgets";
@@ -35,15 +34,9 @@ export class Ghost extends Widget {
   }
 
   public initStore(store: Store, ver: number) {
+    if (ver < 0) return;
     //update store to that of a different notebook if needed
     this.store = store;
-
-    // first, make sure ver is in range of available notebook versions
-    ver = Math.max(0, ver);
-    let max =
-      (store.getState() as verdantState)?.notebookArtifact?.ver ||
-      Number.MAX_SAFE_INTEGER;
-    ver = Math.min(max, ver);
 
     let changeTitle = (ver: number) => {
       this.title.label =

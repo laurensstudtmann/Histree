@@ -236,6 +236,9 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
             <button onClick={() => this.toggleBookmark(this.state.contextMenuProps?.nodeDatum)}>
               {this.state.contextMenuProps?.nodeDatum.attributes.isBookmarked ? "Remove Bookmark" : "Bookmark Node"}
             </button>
+            <button onClick={() => this.props.openGhostBook(this.state.contextMenuProps.nodeDatum.attributes.notebook)}>
+              Open changes in ghost book
+            </button>
           </div>,
           document.body)}
         <BottomMessage message={this.state.messageText} show={this.state.showMessage} setShow={(val) => this.setState({ showMessage: val })}></BottomMessage>
@@ -457,10 +460,11 @@ const mapStateToProps = (state: verdantState) => {
   let currentNodeName = history.store.currentNode?.name;  // Another workaround for rerendering
   // Do a shallow copy of the history tree data structure to force a rerender (react-d3-tree does not update otherwise)
   let treeData = Object.assign({}, history.store.historyTree);
+  let openGhostBook = state.openGhostBook;
 
   // let treeDataLinear = makeTreeData(checkpoints);   // Linear version of the tree for comparison (debugging purposes)
   // log(treeData);
-  return { checkpoints, history, numberOfCheckpoints, currentNodeName, treeData };
+  return { checkpoints, history, numberOfCheckpoints, currentNodeName, treeData, openGhostBook };
 };
 
 const mapDispatchToProps = {
