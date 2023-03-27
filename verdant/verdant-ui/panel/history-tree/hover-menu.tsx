@@ -37,7 +37,7 @@ const renderDiff = (props: HoverMenuProps, notebook_number: number) => {
     if (outputNodey == null) return undefined;
     return props.history.inspector.diff.renderCell(outputNodey, diffType, parentNumber);
   }));
-  return { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number, mergeCount: checkpoint.mergeCount };
+  return { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number, mergeCount: checkpoint.mergeCount, timestamp: checkpoint.timestamp };
 }
 
 type DiffMenuType = {
@@ -47,6 +47,7 @@ type DiffMenuType = {
   affectedCells: string[],
   notebook_number: number,
   mergeCount: number,
+  timestamp: number,
 }
 type HoverMenuProps = {
   show: boolean,
@@ -83,10 +84,10 @@ const HoverMenu = (props: HoverMenuProps) => {
     )
 
   if (shouldRequestDiff) {
-    let { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number, mergeCount } = renderDiff(props, props.nodeDatum.attributes.notebook);
+    let { elementsPromise, outputsPromise, changeTypes, affectedCells, notebook_number, mergeCount, timestamp } = renderDiff(props, props.nodeDatum.attributes.notebook);
     if (elementsPromise != null) {
       Promise.all([elementsPromise, outputsPromise]).then(([elements, outputs]) => {
-        setDiff({ elements, outputs, changeTypes, affectedCells, notebook_number, mergeCount });
+        setDiff({ elements, outputs, changeTypes, affectedCells, notebook_number, mergeCount, timestamp });
       });
     }
   }
@@ -111,26 +112,21 @@ const HoverMenu = (props: HoverMenuProps) => {
         overflow: "auto",
       }}>
       {/* {props.nodeDatum?.name} */}
-      <HoverMenuDiff diff={diff} nodeChangeType={props.nodeDatum?.attributes?.changeType}/>
+      <HoverMenuDiff diff={diff} nodeChangeType={props.nodeDatum?.attributes?.changeType} />
     </div >
   );
 };
 
 const HoverMenuDiff = (props: { diff: DiffMenuType, nodeChangeType: string }) => {
-  const getChangeTypeStr = (changeType: string) => {
-    if (changeType === "add") return "added";
-    if (changeType === "execute") return "executed";
-    if (changeType === "delete") return "removed";
-    if (changeType === "move") return "moved";
-    if (changeType === "changeCellType") return "converted to a different cell type";
-    return "edited";  // for "save" and any other operations
-  }
   return (
     <div>
       {props.diff && props.diff.elements &&
         props.diff.elements.map((element, i) =>
-          <div key={i} style={{ padding: i < props.diff.elements.length - 1 ? "0 0 15px 0" : "0 0 0 0"}}>
-            <div><b>Cell {props.diff.affectedCells[i]}</b> was {getChangeTypeStr(props.nodeChangeType)/*props.diff.changeTypes[i]*/}.</div>
+          <div key={i} style={{ padding: i < props.diff.elements.length - 1 ? "0 0 15px 0" : "0 0 0 0" }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <div><b>Cell {props.diff.affectedCells[i]}</b> was {getChangeTypeStr(props.nodeChangeType)}.</div>
+              {i === 0 && <div style={{ paddingLeft: "15px" }}>{getTimeString(props.diff.timestamp)}</div>}
+            </div>
             <div
               dangerouslySetInnerHTML={{
                 __html: element.outerHTML,
@@ -152,5 +148,28 @@ const HoverMenuDiff = (props: { diff: DiffMenuType, nodeChangeType: string }) =>
     </div>)
 }
 
+const getChangeTypeStr = (changeType: string) => {
+  if (changeType === "add") return "added";
+  if (changeType === "execute") return "executed";
+  if (changeType === "delete") return "removed";
+  if (changeType === "move") return "moved";
+  if (changeType === "changeCellType") return "converted to a different cell type";
+  return "edited";  // for "save" and any other operations
+}
+const getTimeString = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const today = new Date();
+  if (isSameDay(date, today)) return "Today, " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  today.setDate(today.getDate() - 1);
+  const yesterday = today;
+  if (isSameDay(date, yesterday)) return "Yesterday, " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  return date.toLocaleString();
+}
+
+const isSameDay = (someDate: Date, comparisonDate: Date) => {
+  return someDate.getDate() == comparisonDate.getDate() &&
+    someDate.getMonth() == comparisonDate.getMonth() &&
+    someDate.getFullYear() == comparisonDate.getFullYear()
+}
 
 export default HoverMenu;
