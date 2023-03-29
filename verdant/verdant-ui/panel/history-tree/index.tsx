@@ -268,10 +268,6 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       onContextMenu={(event) => this.handleContextMenu(event, nodeDatum)}
       onMouseEnter={(event) => this.handleMouseEnter(event, nodeDatum)}
       onMouseLeave={() => this.handleMouseLeave()}>
-      {/* Main node circle */}
-      <circle r={15} fill={fillColor} stroke="none">
-      </circle>
-      {renderIcon(nodeDatum.attributes.changeType)}
       {/* Pin button */}
       <circle style={{
         position: "absolute",
@@ -298,6 +294,10 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
       >
       </circle>
       {showPinButton && <PinIcon fillOpacity={pinOpacity} fillColor={this.state.showHoverMenuOverride ? "#EF6C00" : "#AAA"} />}
+      {/* Main node circle */}
+      <circle r={15} fill={fillColor} stroke="none">
+      </circle>
+      {renderIcon(nodeDatum.attributes.changeType)}
       {/* Highlight glow */}
       {this.state.enableHighlighting && nodeDatum.attributes.isHighlighted &&
         <>

@@ -51,7 +51,7 @@ export class DeleteIcon extends React.Component {
 export class StarIcon extends React.Component {
   render() {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" x={-18} y={-20} viewBox="0 0 24 24" height="16px" width="16px" fill="#ffeb3b" stroke="#000" strokeWidth="1.4px"><title>Bookmarked</title><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" /></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" x={-20} y={-22} viewBox="0 0 24 24" height="20px" width="20px" fill="#ffeb3b" stroke="#000" strokeWidth="1.4px"><title>Bookmarked</title><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" /></svg>
     );
   }
 }
