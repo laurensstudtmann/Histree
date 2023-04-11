@@ -237,11 +237,18 @@ export class HistoryStore {
 
     // Iterate over all nodes in the tree
     this._nodeLookup.forEach(nodeDatum => {
-      const isRelevant = this.history.checkpoints.all()[nodeDatum.attributes.notebook].targetCells.some(c => {
-        const [currentType, currentID,] = c.cell.split(".");
-        return currentType === targetType && currentID === targetID;
-      });
-      nodeDatum.attributes.isHighlighted = isRelevant;
+      const checkpoint = this.history.checkpoints.all()[nodeDatum.attributes.notebook];
+      if (checkpoint != null) {
+        const isRelevant = checkpoint.targetCells.some(c => {
+          const [currentType, currentID,] = c.cell.split(".");
+          return currentType === targetType && currentID === targetID;
+        });
+        nodeDatum.attributes.isHighlighted = isRelevant;
+      }
+      else {
+        console.error("Error: Could not perform node highlighting properly!");
+        nodeDatum.attributes.isHighlighted = false;
+      }
     })
   }
 

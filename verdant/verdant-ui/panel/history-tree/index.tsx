@@ -316,7 +316,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
         <circle r={20} fill="none" stroke={fillColor} strokeWidth="3px" />
       )}
       {/* Display execution counter if applicable */}
-      {execCount > 1 && (
+      {execCount > 1 &&  nodeDatum.attributes.changeType === "execute" &&(
         <>
           <circle r={10} cx={12} cy={-12} fill={darkFillColor} stroke="none"></circle>
           <text dx={12} dy={-7.5} textAnchor="middle" fill="#fff" stroke="none" fontSize="14px" fontWeight="bold">{execCount}</text>
