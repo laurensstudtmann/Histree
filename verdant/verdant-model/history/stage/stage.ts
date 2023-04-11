@@ -109,8 +109,11 @@ export class Stage {
 
     let oldText = nodey.literal || ""; // assuming no AST level data
 
+    const bothEmpty = newText === "" && oldText === "";
+
     // Always stage even if code stayed the same, except when saving the notebook, then do ignore it when code stayed the same
-    if (!checkIfDifferent || oldText !== newText) {
+    // But do not stage if both the old and new version are empty.
+    if (!bothEmpty && (!checkIfDifferent || oldText !== newText)) {
       // store instructions for a new version of nodey in staging
       if (!this.staged_codeCell[nodey.artifactName]) {
         this.staged_codeCell[nodey.artifactName] = { literal: newText };
@@ -124,6 +127,11 @@ export class Stage {
   private async checkOutputNodey(nodey: NodeyCodeCell) {
     // get current (new) output if any
     let cell = this.history.notebook.getCellByNode(nodey);
+    
+    // Get old and new version of cell to check if they are both empty
+    let newText = cell?.getText() || "";
+    let oldText = nodey.literal || ""; // assuming no AST level data
+
     let outputArea = cell?.outputArea;
     let raw: IOutput[] = []; // no output
     if (outputArea) raw = cell?.outputArea?.model.toJSON() || []; // output if present
@@ -131,7 +139,9 @@ export class Stage {
     // first, don't record this output if it is completely errors
     let onlyErrors = OutputHistory.checkForAllErrors(raw);
 
-    if (!onlyErrors) {
+    // Also do not record output when both versions of the code cell are empty and the output is also empty (meaning we've just executed an empty cell)
+    const allEmpty = newText === "" && oldText === "" && raw.length === 0;
+    if (!allEmpty && !onlyErrors) {
       // make instructions for a new Output in staging
       if (!this.staged_codeCell[nodey.artifactName]) {
         this.staged_codeCell[nodey.artifactName] = {};
