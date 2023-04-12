@@ -12,6 +12,7 @@ import { connect } from "react-redux";
 const PANEL_CONTAINER = "v-VerdantPanel-content-container";
 const TAB_CONTAINER = "v-VerdantPanel-tabContainer";
 const TAB = "v-VerdantPanel-tab";
+const SHOW_TABBAR = false;
 
 type Panel_Props = {
   activeTab: ActiveTab;
@@ -30,6 +31,7 @@ class PanelContainer extends React.Component<Panel_Props> {
   }
 
   private buildHeader() {
+    if (!SHOW_TABBAR) return;
     let active = this.props.activeTab;
     return (
       <div className={TAB_CONTAINER}>

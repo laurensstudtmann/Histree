@@ -84,9 +84,18 @@ let css = `
       box-sizing: border-box;
     }
 
-    .button-group {
+    .button-group-with-tabbar {
       position: absolute;
       top: 52px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .button-group {
+      position: absolute;
+      top: 10px;
       right: 10px;
       display: flex;
       flex-direction: column;
@@ -212,12 +221,13 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           orientation="vertical"
           nodeSize={nodeSize}
           pathFunc="straight"
-          translate={{ x: this.state.containerWidth ? this.state.containerWidth / 3 : 50, y: 50 }}
+          // Always takes the backup value instead of 1/3 of containerWidth, ever since using the history tree as the default tab...
+          translate={{ x: this.state.containerWidth ? this.state.containerWidth / 3 : 100, y: 50 }}
           zoom={0.65}
           scaleExtent={{ max: 2, min: 0.1 }}
           collapsible={true}
           renderCustomNodeElement={(rd3tProps) => // Get the proper reference from the store instead of the copy provided by the rd3tProps
-            this.renderForeignObjectNode(this.props.history.store.getNodeByNotebookIndex(rd3tProps.nodeDatum.attributes.notebook as number), foreignObjectProps)}
+            this.renderForeignObjectNode(this.props.history.store.getNodeByNotebookIndex(rd3tProps.nodeDatum.attributes?.notebook as number), foreignObjectProps)}
         />
         {/* Context Menu for right clicking on a node */}
         {this.state.contextMenuProps?.show && ReactDOM.createPortal(
@@ -236,9 +246,6 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
             <button onClick={() => this.toggleBookmark(this.state.contextMenuProps?.nodeDatum)}>
               {this.state.contextMenuProps?.nodeDatum.attributes.isBookmarked ? "Remove Bookmark" : "Bookmark Node"}
             </button>
-            <button onClick={() => this.handleGhostbookBtnClick()}>
-              Open changes in ghost book
-            </button>
           </div>,
           document.body)}
         <BottomMessage message={this.state.messageText} show={this.state.showMessage} setShow={(val) => this.setState({ showMessage: val })}></BottomMessage>
@@ -255,6 +262,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     nodeDatum: VerTreeNodeDatum,
     foreignObjectProps,
   ) {
+    if (nodeDatum == null) return;
     const fillColor = getNodeColor(nodeDatum.attributes.changeType);
     const darkFillColor = getNodeColor(nodeDatum.attributes.changeType, true);
     const execCount = nodeDatum.attributes.notebook != null ? this.props.history.checkpoints.all()[nodeDatum.attributes.notebook].mergeCount + 1 : 0;
@@ -344,17 +352,17 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   renderButtons() {
     return (
       <div className="button-group" onMouseEnter={() => { console.log("going over"); this.setState({ verboseButtons: true }); }} onMouseLeave={() => { console.log("going out"); this.setState({ verboseButtons: false }); }}>
-        <button className="button" onClick={() => this.toggleBookmark(this.props.history.store.currentNode)}>
-          {this.state.verboseButtons && (
-            <div className="button-text">{(this.props.history.store.currentNode?.attributes.isBookmarked ? "Remove Bookmark" : "Bookmark Current Node")}</div>
-          )}
-          <div className="icon-div"><StarOnOff active={!this.props.history.store.currentNode?.attributes.isBookmarked}></StarOnOff></div>
-        </button>
         <button className="button" onClick={() => this.toggleNode(this.props.history.store.currentNode)}>
           {this.state.verboseButtons && (
             <div className="button-text">{(this.props.history.store.currentNode?.__rd3t.collapsed ? "Expand Current Node" : "Collapse Current Node")}</div>
           )}
           <div className="icon-div"><CollapseOnOff active={!this.props.history.store.currentNode?.__rd3t.collapsed}></CollapseOnOff></div>
+        </button>
+        <button className="button" onClick={() => this.toggleBookmark(this.props.history.store.currentNode)}>
+          {this.state.verboseButtons && (
+            <div className="button-text">{(this.props.history.store.currentNode?.attributes.isBookmarked ? "Remove Bookmark" : "Bookmark Current Node")}</div>
+          )}
+          <div className="icon-div"><StarOnOff active={!this.props.history.store.currentNode?.attributes.isBookmarked}></StarOnOff></div>
         </button>
         <button className="button" onClick={() => this.setHighlighting(!this.state.enableHighlighting)}>
           {this.state.verboseButtons && (
@@ -402,6 +410,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     console.log("context menu", node.name);
   }
 
+  // Currently unused
   handleGhostbookBtnClick() {
     this.setState({ contextMenuProps: { show: false, x: null, y: null, nodeDatum: null } });
     document.removeEventListener('click', this.handleClickOutside);

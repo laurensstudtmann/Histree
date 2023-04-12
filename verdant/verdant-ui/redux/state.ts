@@ -83,7 +83,7 @@ export const createInitialState = (getHistory: () => History): verdantState => {
     getHistory: getHistory,
     openGhostBook: (_: number) => {}, // default is do nothing
     eventView: eventsInitialState(),
-    activeTab: ActiveTab.Events,
+    activeTab: ActiveTab.TreeTab,
     artifactView: artifactPaneInitialState(),
     search: searchInitialState(),
     ghostBook: ghostInitialState(),

@@ -80,7 +80,7 @@ class VerdantCustomTree extends Tree {
     return d.map(n => {
       const nodeDatum = n as TreeNodeDatum;
       // Keep existing collapsed state
-      nodeDatum.__rd3t = { id: null, depth: null, collapsed: nodeDatum.__rd3t.collapsed };
+      nodeDatum.__rd3t = { id: null, depth: null, collapsed: nodeDatum.__rd3t?.collapsed };
       nodeDatum.__rd3t.id = uuidv4();
       // D3@v5 compat: manually assign `depth` to node.data so we don't have
       // to hold full node+link sets in state.
