@@ -34,19 +34,6 @@ const getNodeColor = (changeType: string, darken: boolean = false) => {
     return darken ? "#1565C0" : "#1E88E5";
 }
 
-/*const makeTreeData = (checkpoints: Checkpoint[]) => {
-  let res = { name: "root", children: [] };
-  return buildTreeRecursive(checkpoints, 0, res);
-};
-
-const buildTreeRecursive = (checkpoints: Checkpoint[], index: number, currentNode: VerTreeNodeDatum) => {
-  if (index < checkpoints.length) {
-    let nextNode = buildTreeRecursive(checkpoints, index + 1, { name: checkpoints[index].notebook.toString(), attributes: { notebook: checkpoints[index].notebook }, children: [] });
-    currentNode.children.push(nextNode);
-  }
-  return currentNode;
-};*/
-
 let css = `
     .node__all > circle {
       fill: #bbb;
@@ -132,8 +119,6 @@ let css = `
     }
 
     `;
-const nodeSize = { x: 40, y: 40 };
-const foreignObjectProps = { width: nodeSize.x + 5, height: nodeSize.y, x: 18, y: -10 };
 
 export interface VerTreeNodeDatum extends TreeNodeDatum {
   children?: VerTreeNodeDatum[],
@@ -219,7 +204,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           branchNodeClassName="node__all"
           leafNodeClassName="node__all"
           orientation="vertical"
-          nodeSize={nodeSize}
+          nodeSize={{ x: 40, y: 40 }}
           pathFunc="straight"
           // Always takes the backup value instead of 1/3 of containerWidth, ever since using the history tree as the default tab...
           translate={{ x: this.state.containerWidth ? this.state.containerWidth / 3 : 100, y: 50 }}
@@ -227,7 +212,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           scaleExtent={{ max: 2, min: 0.1 }}
           collapsible={true}
           renderCustomNodeElement={(rd3tProps) => // Get the proper reference from the store instead of the copy provided by the rd3tProps
-            this.renderForeignObjectNode(this.props.history.store.getNodeByNotebookIndex(rd3tProps.nodeDatum.attributes?.notebook as number), foreignObjectProps)}
+            this.renderNode(this.props.history.store.getNodeByNotebookIndex(rd3tProps.nodeDatum.attributes?.notebook as number))}
         />
         {/* Context Menu for right clicking on a node */}
         {this.state.contextMenuProps?.show && ReactDOM.createPortal(
@@ -254,13 +239,9 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     );
   }
 
-  // Here we're using `renderCustomNodeElement` render a component that uses
-  // both SVG and HTML tags side-by-side.
-  // This is made possible by `foreignObject`, which wraps the HTML tags to
-  // allow for them to be injected into the SVG namespace.
-  renderForeignObjectNode(
-    nodeDatum: VerTreeNodeDatum,
-    foreignObjectProps,
+  // Renders an SVG node with all its different styling possibilities based on its current attributes
+  renderNode(
+    nodeDatum: VerTreeNodeDatum
   ) {
     if (nodeDatum == null) return;
     const fillColor = getNodeColor(nodeDatum.attributes.changeType);
@@ -340,12 +321,6 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
           y={nodeDatum.attributes.notebook === this.currentNotebookIndex ? 20 : 15}
           onClickFn={() => this.expandNode(nodeDatum)}
         />}
-      {/* `foreignObject` requires width & height to be explicitly set. */}
-      {false && (
-        <foreignObject {...foreignObjectProps}>
-          <div style={{ verticalAlign: "top", textAlign: "center" }}>{nodeDatum.name}</div>
-        </foreignObject>
-      )}
     </g>
   }
 
@@ -404,10 +379,6 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     event.preventDefault();   // Do not show normal context menu
     this.setState({ contextMenuProps: { show: true, x: event.clientX, y: event.clientY, nodeDatum: node } });
     document.addEventListener('click', this.handleClickOutside);
-
-    //if (node.__rd3t.collapsed) this.expandNode(node);
-    //else this.collapseNode(node);
-    console.log("context menu", node.name);
   }
 
   // Currently unused
@@ -436,7 +407,6 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
     if (node == null) return;
     if (node.__rd3t.collapsed) this.expandNode(node);
     else this.collapseNode(node);
-
   }
 
   expandNode(node: VerTreeNodeDatum) {
@@ -477,8 +447,6 @@ const mapStateToProps = (state: verdantState) => {
   let treeData = Object.assign({}, history.store.historyTree);
   let openGhostBook = state.openGhostBook;
 
-  // let treeDataLinear = makeTreeData(checkpoints);   // Linear version of the tree for comparison (debugging purposes)
-  // log(treeData);
   return { checkpoints, history, numberOfCheckpoints, currentNodeName, treeData, openGhostBook };
 };
 
