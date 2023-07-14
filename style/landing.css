@@ -14,7 +14,7 @@
 }
 
 #verdant-landing-img {
-  background-image: var(--verdant-icon-logo);
+  background-image:  url(../style/img/histreeLogo.png);/*(--verdant-icon-logo);*/
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;

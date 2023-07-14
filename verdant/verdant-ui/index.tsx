@@ -9,10 +9,11 @@ import { VerdantInstance } from "../instance-manager";
 /*
  * Icon for Verdant
  */
-const verdantIconSvgStr = require("../../style/img/log-icon-4.svg");
+//const verdantIconSvgStr = require("../../style/img/log-icon-4.svg");
+const histreeIconSvgStr = require("../../style/img/histreeIconNoText.svg");
 export const verdantIcon = new LabIcon({
   name: "verdant",
-  svgstr: verdantIconSvgStr.default,
+  svgstr: histreeIconSvgStr.default,
 });
 
 /*
@@ -28,9 +29,9 @@ export class VerdantUI extends ReactWidget {
     // set up JupyterLab Widget boilerplate
     this.id = "v-VerdantPanel";
     this.addClass("v-Verdant-sidePanel");
-    this.title.icon = verdantIcon;
-    this.title.iconClass = "verdant-log-icon";
-    this.title.caption = "Verdant Log";
+    this.title.icon = "histree-icon";
+    //this.title.iconClass = "verdant-log-icon";
+    this.title.caption = "Histree";
   }
 
   dispose() {
@@ -49,7 +50,7 @@ function VerdantLanding() {
   return (
     <div id="verdant-landing">
       <div id="verdant-landing-message">
-        <div>(Custom Verdant) Open up a notebook to see its history.</div>
+        <div>Welcome to Histree! Open up a notebook to see its history.</div>
         <div id="verdant-landing-img" />
       </div>
     </div>
