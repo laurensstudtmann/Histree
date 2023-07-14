@@ -1,6 +1,6 @@
 # Histree
 
-A history tracking tool for Jupyter Notebooks.
+A history tracking tool for JupyterLab, based on [Verdant](https://github.com/mkery/Verdant) by Mary Beth Kery.
 The purpose of Histree is to provide a JupyterLab extension that does tree-based history tracking with branching capabilities.
 
 ## Install
