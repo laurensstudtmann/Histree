@@ -1,18 +1,18 @@
 {
-  "name": "verdant-history",
-  "version": "1.1.7",
-  "description": "a local versioning logging tool for jupyterlab notebooks",
+  "name": "histree",
+  "version": "0.1.0",
+  "description": "A tree-based history tracking tool for JupyterLab",
   "keywords": [
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/mkery/Verdant",
+  "homepage": "https://github.com/laurensstudtmann/Histree",
   "bugs": {
-    "url": "https://github.com/mkery/Verdant/issues"
+    "url": "https://github.com/laurensstudtmann/Histree/issues"
   },
-  "license": "BSD-3-Clause",
-  "author": "Mary Beth Kery",
+  "license": "MIT",
+  "author": "Laurens Studtmann",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png, py,svg,woff2,ttf}",
     "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
@@ -21,7 +21,7 @@
   "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "hhttps://github.com/mkery/Verdant.git"
+    "url": "https://github.com/laurensstudtmann/Histree.git"
   },
   "scripts": {
     "build": "tsc && jupyter lab build",
