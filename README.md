@@ -3,6 +3,10 @@
 A history tracking tool for JupyterLab, based on [Verdant](https://github.com/mkery/Verdant) by Mary Beth Kery.
 The purpose of Histree is to provide a JupyterLab extension that does tree-based history tracking with branching capabilities.
 
+[[DEMO VIDEO ON YOUTUBE]](https://www.youtube.com/watch?v=_SV5ncqTt04)
+
+Check out our [paper](https://swc.rwth-aachen.de/docs/2023_APSEC__Studtmann_Aydin.pdf) (preprint) for the research behind this tool.
+
 ## Install
 1. __Jupyterlab__: Histree works with > JupyterLab 3 (latest version). To install or update your JupyterLab: 
   * with pip: `pip install jupyterlab -U` 
@@ -31,3 +35,8 @@ yarn start
 This is an experimental extension not yet properly released, and may contain bugs that could cause problems with your Jupyter Notebooks. Please use at your own risk. Here are a few issues that we are currently aware of:
 * Reordering cells can sometimes cause issues with the history tracking
 * Copy/Pasting of cells can cause similar problems
+
+## Acknowledgments
+This tool has been developed as part of a [project supervised by Selin Aydin at the Research Group Software Construction of RWTH Aachen University](https://swc.rwth-aachen.de/theses/experiment-history-tracking-for-jupyter-notebooks/).
+
+Thank you to Mary Beth Kery for the original Verdant extension and our study participants for all the valuable feedback on earlier versions!
