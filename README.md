@@ -3,7 +3,7 @@
 A history tracking tool for JupyterLab, based on [Verdant](https://github.com/mkery/Verdant) by Mary Beth Kery.
 The purpose of Histree is to provide a JupyterLab extension that does tree-based history tracking with branching capabilities.
 
-[[DEMO VIDEO ON YOUTUBE]](https://www.youtube.com/watch?v=_SV5ncqTt04)
+[[DEMO VIDEO ON YOUTUBE]](https://www.youtube.com/watch?v=lCylbZacPuw)
 
 Check out our [paper](https://swc.rwth-aachen.de/docs/2023_APSEC__Studtmann_Aydin.pdf) (preprint) for the research behind this tool.
 
