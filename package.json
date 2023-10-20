@@ -1,7 +1,7 @@
 {
-  "name": "histree",
+  "name": "jupyter-histree",
   "version": "0.1.0",
-  "description": "A tree-based history tracking tool for JupyterLab",
+  "description": "Histree: An experimental tree-based history tracking tool for JupyterLab",
   "keywords": [
     "jupyter",
     "jupyterlab",
