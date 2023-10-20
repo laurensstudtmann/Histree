@@ -19,8 +19,12 @@ Check out our [paper](https://swc.rwth-aachen.de/docs/2023_APSEC__Studtmann_Aydi
   * to install: [Official NodeJS installers](https://nodejs.org/en/download/)
   * tested with NodeJS version 16.X.X
 3. __Histree__:
-  * To install Histree, you currently have to build it yourself from the source code. Once it is properly deployed, it will be possible to install Histree directly via the JupyterLab extension manager.
-  * To build Histree from source code, execute the following commands in the source code directory:
+  * with the JupyterLab extension manager: look for "jupyter-histree" in the extensions menu (the puzzle icon in the sidebar of JupyterLab) and click "Install".
+  * alternatively, with the command line: `jupyter labextension install jupyter-histree`
+4. If the installation was successful, the Histree extension will be available in the sidebar on the left!
+
+## Develop
+To build Histree from source code, execute the following commands in the source code directory:
 
 ```bash
 yarn
@@ -28,8 +32,18 @@ yarn build
 yarn start
 ```
 
+After making modifications to the code, use the following commands to rebuild (this will take a while every time):
+```bash
+yarn build
+yarn start
+```
 
-4. After the installation, an icon appears in the JupyterLab sidebar which you can click to open the Histree interface.
+In case you wish to apply your changes more quickly, you can use hot-reloading:
+
+1. Open up a command line in the source code directory and enter `jupyter lab --watch`
+2. Open up a second command line in the source code directory and enter `yarn watch`
+
+Now the changes will be applied automatically within seconds after saving changes within the source code.
 
 ## Known Issues
 This is an experimental extension not yet properly released, and may contain bugs that could cause problems with your Jupyter Notebooks. Please use at your own risk. Here are a few issues that we are currently aware of:
