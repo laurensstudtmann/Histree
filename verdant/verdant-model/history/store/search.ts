@@ -43,7 +43,6 @@ export namespace Search {
     if (query?.startsWith("=")) {
       // exact artifact search
       const name = formatName(query);
-      console.log("ARTIFACT SEARCH FOR ", query, name);
       markdown_results = findArtifactMarkdown(name, _markdownStore);
       code_results = findArtifactCode(name, _codeCellStore);
       output_results = findArtifactOutput(name, _outputStore);

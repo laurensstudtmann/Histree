@@ -18,7 +18,7 @@ const ENABLE_CORRECTNESS_CHECK = false;
 
 export namespace GhostToNotebookConverter {
   export async function convert(history: History, notebook: NodeyNotebook, createNewModel: Boolean = true, clickedNode: RawNodeDatum = undefined) {    
-    let start = new Date().getTime();
+    //let start = new Date().getTime();
 
     const ver_notebook = history.notebook;
     if (!ver_notebook.canListen) return;  // Switch is already in progress, do not switch again
@@ -46,7 +46,7 @@ export namespace GhostToNotebookConverter {
       ver_notebook.canListen = false;
     }
 
-    let prepDone = new Date().getTime();
+    //let prepDone = new Date().getTime();
 
     let iCellModels: ICellModel[] = [];
     if (ENABLE_CORRECTNESS_CHECK) {
@@ -149,17 +149,17 @@ export namespace GhostToNotebookConverter {
       }
       return val;
     }
-    let workDone = new Date().getTime();
+    //let workDone = new Date().getTime();
 
-    let old_nodeyNotebook = ver_notebook.model;
-    console.log("old_nodeyNotebook.cells", old_nodeyNotebook.cells);
+    //let old_nodeyNotebook = ver_notebook.model;
+    //console.log("old_nodeyNotebook.cells", old_nodeyNotebook.cells);
 
     let verCellNames = ver_notebook.cells.map(vc => vc.modelName);  //JSON.parse(JSON.stringify(old_nodeyNotebook.cells));
 
     await insertICells(notebook.cells, model.cells, verCellNames, notebook, generateCell, history);// ver_notebook.cells.map(vc => vc.modelName), history);  // vc.model.name
     if (ENABLE_CORRECTNESS_CHECK) checkICells(iCellModels, model.cells);
 
-    let icellsDone = new Date().getTime();
+    //let icellsDone = new Date().getTime();
 
     ver_notebook.cells = [];
     for (let i = 0; i < model.cells.length; i++) {
@@ -181,7 +181,7 @@ export namespace GhostToNotebookConverter {
     if (newActiveCellIndex != null) history.notebook.view.notebook.activeCellIndex = newActiveCellIndex;
     history.notebook.view.focusCell();
 
-    console.log("SWITCHING DONE");
+    /*console.log("SWITCHING DONE");
     let everythingDone = new Date().getTime();
 
     let totalTime = everythingDone - start;
@@ -190,7 +190,7 @@ export namespace GhostToNotebookConverter {
     let icellsTime = icellsDone - workDone;
     let verCellsTime = everythingDone - icellsDone;
     console.log("prep:", prepTime, ", work:", workTime, ", icellsTime:", icellsTime, ", verCellSTime:", verCellsTime, ", total:", totalTime);
-    console.log("clickedNode", clickedNode.attributes.notebook);
+    console.log("clickedNode", clickedNode.attributes.notebook);*/
 
     return model;
   }
@@ -210,14 +210,14 @@ export namespace GhostToNotebookConverter {
     let generatedCells = await Promise.all(sourceCellNames.map(sn => verCellNames.includes(sn) ? undefined : generateCellFn(sn)));
 
     for (let i = 0; i < sourceCellNames.length; i++) {
-      console.log("sourceCellName", sourceCellNames[i], ", verCellName", verCellNames[i]);
-      console.log(generatedCells[i]);
+      //console.log("sourceCellName", sourceCellNames[i], ", verCellName", verCellNames[i]);
+      //console.log(generatedCells[i]);
       if (sourceCellNames[i] === verCellNames[i]) {
         continue;   // Cell at current index is the same as before
       }
       let vcIndex = verCellNames.findIndex(vc => vc === sourceCellNames[i]);
       if (vcIndex !== -1) {
-        console.log("found elsewhere. Moving...");
+        //console.log("found elsewhere. Moving...");
         // Commented out is an alternative for moving the cell. Would be faster but a "cell is null" error occurs under specific circumstances
         //targetCells.set(i, targetCells.get(vcIndex));
         //targetCells.remove(vcIndex);
@@ -226,12 +226,15 @@ export namespace GhostToNotebookConverter {
         //verCellNames[i] = ""; // Insert dummy value for good measure
         //verCellNames.splice(vcIndex, 1);
       } else {
-        console.log("not found. Replacing...");
+        //console.log("not found. Replacing...");
         let genCell = generatedCells[i];
         if (genCell == null) {
-          console.error("ERROR: Generated Cell undefined! Attempting automatic fix...");
+          //console.error("ERROR: Generated Cell undefined! Attempting automatic fix...");
           genCell = await generateCellFn(sourceCellNames[i]);
-          if (genCell == null) console.error("ERROR: Automatic fix failed!");
+          /*if (genCell == null)
+            console.error("ERROR: Automatic fix failed!");
+          else
+            console.log("Automatic fix successful.");*/
         }
         if (targetCells.length < sourceCellNames.length) {
           targetCells.insert(i, genCell);

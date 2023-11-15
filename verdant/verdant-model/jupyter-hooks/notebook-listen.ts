@@ -84,7 +84,6 @@ export class NotebookListen {
   }
 
   focusCell(cell: Cell | null = this._notebook.activeCell) {
-    console.log("focus:", cell);
     if (!this.verNotebook.canListen ||  // currently in progress of switching checkpoints
       !cell || !cell.model)             //cell was just deleted
       return;

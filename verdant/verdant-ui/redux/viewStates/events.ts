@@ -83,7 +83,6 @@ export const eventReducer = (
   action: any
 ): eventMapState => {
   const eventView = state.eventView;
-  console.log(action.type);
   switch (action.type) {
     case INIT_EVENT_MAP:
       if (eventView.dates.length < 2)
@@ -95,7 +94,6 @@ export const eventReducer = (
       else return eventView;
     case UPDATE_CHECKPOINT:
       if (action.currentEvent != eventView.currentEvent) {
-        console.log("eventview:", eventView);
         return {
           // update both event map and current event with new event
           ...eventView,

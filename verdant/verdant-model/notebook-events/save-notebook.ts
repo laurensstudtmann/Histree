@@ -9,7 +9,6 @@ export class SaveNotebook extends NotebookEvent {
     this.actuallySave = actuallySave;  
   }
   async modelUpdate() {
-    console.log(this.checkpoint);
     // look through cells for potential unsaved changes
     this.notebook.cells.forEach((cell) => {
       if (cell.model) {

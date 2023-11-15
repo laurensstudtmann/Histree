@@ -326,7 +326,7 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
 
   renderButtons() {
     return (
-      <div className="button-group" onMouseEnter={() => { console.log("going over"); this.setState({ verboseButtons: true }); }} onMouseLeave={() => { console.log("going out"); this.setState({ verboseButtons: false }); }}>
+      <div className="button-group" onMouseEnter={() => this.setState({ verboseButtons: true })} onMouseLeave={() => this.setState({ verboseButtons: false })}>
         <button className="button" onClick={() => this.toggleNode(this.props.history.store.currentNode)}>
           {this.state.verboseButtons && (
             <div className="button-text">{(this.props.history.store.currentNode?.__rd3t.collapsed ? "Expand Current Node" : "Collapse Current Node")}</div>
@@ -352,12 +352,10 @@ class TreeTab extends React.Component<TreeTab_Props, TreeTab_State> {
   handleNodeClick(nodeDatum: VerTreeNodeDatum) {
     const kernel = this.props.history.notebook.view.panel.sessionContext.session.kernel;
     if (kernel.status === "busy") {
-      console.log("HISTORY TREE: KERNEL BUSY");
       this.setState({ showMessage: true, messageText: "Cannot switch checkpoints because the kernel is busy!" });
       return;
     }
     if (nodeDatum.attributes == null || nodeDatum.attributes.notebook == null) {
-      console.log("vernotebook cells", this.props.history.notebook.cells, this.props.history.notebook.cells.map(c => c.modelName));
       return; // Do not do anything when root node is clicked
     }
     GhostToNotebookConverter.convert(this.props.history, this.props.history.store.getNotebook(nodeDatum.attributes.notebook as number), false, nodeDatum)

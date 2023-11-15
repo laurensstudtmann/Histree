@@ -207,10 +207,8 @@ export class HistoryStore {
   public getParentNode(node: RawNodeDatum) {
     if (node.attributes.parentNotebook != null)
       return this._nodeLookup[node.attributes.parentNotebook as number];
-    if (node.name === this._historyTree.name) {
-      console.log("root!");
+    if (node.name === this._historyTree.name)
       return undefined;  // node is the root node
-    }
     console.log("Falling back to DFS due to outdated history file");
     return this.getParent_DFS(this._historyTree, node.attributes.notebook as number) as VerTreeNodeDatum;
   }
@@ -260,7 +258,6 @@ export class HistoryStore {
       if (!this._notebookHistory) {
         this._notebookHistory = new NodeHistory<NodeyNotebook>(this.history);
         this.currentNotebookIndex = 0;  // List of notebook versions is empty at this point, but will be filled with the first element in the next line, so set index to that first element already
-        console.log(this.history.checkpoints.all());
       }
       this._notebookHistory.addVersion(nodey);
     } else {
