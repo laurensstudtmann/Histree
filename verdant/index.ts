@@ -40,10 +40,10 @@ import { RenderBaby } from "./verdant-model/jupyter-hooks/render-baby";
 import { VerdantUI } from "./verdant-ui";
 
 /**
- * Initialization data for the Verdant extension.
+ * Initialization data for the Histree extension.
  */
 const extension: JupyterFrontEndPlugin<void> = {
-  id: "Verdant",
+  id: "Histree",
   activate: (
     app: JupyterFrontEnd,
     docManager: IDocumentManager,
