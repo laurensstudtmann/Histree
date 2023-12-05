@@ -8,7 +8,7 @@ The purpose of Histree is to provide a JupyterLab extension that does tree-based
 Check out our [paper](https://swc.rwth-aachen.de/docs/2023_APSEC__Studtmann_Aydin.pdf) (preprint) for the research behind this tool.
 
 ## Install
-1. __Jupyterlab__: Histree works with > JupyterLab 3 (latest version). To install or update your JupyterLab: 
+1. __Jupyterlab__: Histree works with JupyterLab 3 (Newer versions may not work). To install or update your JupyterLab: 
   * with pip: `pip install jupyterlab -U` 
   * with conda: `conda install -c conda-forge jupyterlab`
   * to check version: `jupyter lab --version`
@@ -46,9 +46,7 @@ In case you wish to apply your changes more quickly, you can use hot-reloading:
 Now the changes will be applied automatically within seconds after saving changes within the source code.
 
 ## Known Issues
-This is an experimental extension not yet properly released, and may contain bugs that could cause problems with your Jupyter Notebooks. Please use at your own risk. Here are a few issues that we are currently aware of:
-* Reordering cells can sometimes cause issues with the history tracking
-* Copy/Pasting of cells can cause similar problems
+This is an experimental extension not yet properly released, and may contain bugs that could cause problems with your Jupyter Notebooks. Please use at your own risk. In case you run into any problems, please use the Issues page on GitHub to report what you have encountered.
 
 ## Acknowledgments
 This tool has been developed as part of a [project supervised by Selin Aydin at the Research Group Software Construction of RWTH Aachen University](https://swc.rwth-aachen.de/theses/experiment-history-tracking-for-jupyter-notebooks/).
